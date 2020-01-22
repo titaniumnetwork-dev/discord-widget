@@ -8,6 +8,7 @@ Contributions are greatly appreciated. as this is very early in development
 ## Todo List
 ### High priority
 - ~~Text wrapping~~ Fixed 
+- Make wrapped content push other messages down
 - Choosing a selection of webhooks to prevent timeouts from spammers
 - Message delays
 - Image attachment support
