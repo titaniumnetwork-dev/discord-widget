@@ -31,7 +31,7 @@ Contributions are greatly appreciated. as this is very early in development
 8. Run "npm install"
 9. Open up the "config.json" file once more and in Discord go in settings and under appearance you will find at the bottom "Developer Mode", make sure that is toggled on and if not toggle it. Go to the server you desire to test on and right click any channel and press "Copy ID" and select in the "config.json" file the channel field and replace the big numbers with your clipboard by pasting it into there and save the file
 10. In the discord developer website navigate to your bot and in the "general information" tab select "Copy" under the text "CLIENT ID" and visit 
-https://discordapp.com/oauth2/authorize?client_id=Paste your CLIENT ID here&scope=bot&permissions=346112
+https://discordapp.com/oauth2/authorize?client_id=PasteyourCLIENTIDhere&scope=bot&permissions=346112
 and replace the "Paste your CLIENT ID" with your clipboard by selecting it and pasting it there.
 11. In the command prompt window type in "node app.js" and visit http://localhost:8080/ in your browser
 I hope this wasn't too complicated and if I missed any steps let me know.
