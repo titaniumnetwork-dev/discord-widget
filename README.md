@@ -19,4 +19,4 @@ Contributions are greatly appreciated. as this is very early in development
 - Proxying POST requests for sending messages
 
 ## Basic rundown
-This app uses discord.js to fetch the last 50 messages and output it via html. The app also runs an index.html file that contains formatting for each message and each message gets parsed and configured so it displays nicely.
+This app uses discord.js to fetch the last 50 messages and output it via HTMl. The outputted HTMl gets formatted to appear like Discord so it doesnt feel wonky then the messages send on the page are send via webhooks to make the message appear. The page never finishes loading at the moment that way new message requests can be sent (this might change).
