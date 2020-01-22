@@ -13,6 +13,7 @@ Contributions are greatly appreciated. as this is very early in development
 - Message delays
 - Image attachment support
 ### Normal priority
+- Add websocket support
 - Emojis
 - Displaying emojis
 - Better HTML sanitizing (added because of YOCT)
