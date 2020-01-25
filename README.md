@@ -8,7 +8,8 @@ Contributions are greatly appreciated. as this is very early in development
 ## Todo List
 ### High priority
 - ~~Text wrapping~~ Fixed 
-- Make wrapped content push other messages down
+- ~~Make wrapped content push other messages down~~ Fixed
+- Whatever the fuck causes the messages to get all wonky
 - Choosing a selection of webhooks to prevent timeouts from spammers
 - Message delays
 - Image attachment support
@@ -18,12 +19,12 @@ Contributions are greatly appreciated. as this is very early in development
 - Displaying emojis
 - Better HTML sanitizing (added because of YOCT)
 ### Low priority
-- Obfuscating webhooks
-- Proxying POST requests for sending messages
+~~- Obfuscating webhooks~~ Fixed with websockets 
+~~- Proxying POST requests for sending messages~~ Fixed with websockets
 
 ## How do I deploy this?
 1. Visit https://discordapp.com/developers/applications/
-2. Press "New Application" and name it to whatever (I.E. "Swag Message Assistant")
+2. Press "New Application" and name it to whatever (e.g. "Swag Message Assistant")
 3. Switch to the bot tab and press "Add Bot"
 4. Press "Copy" under the blue text that says "Click to Reveal Token"
 5. Download the discord-proxy repository and extract to a folder
@@ -38,4 +39,4 @@ and replace the "Paste your CLIENT ID" with your clipboard by selecting it and p
 11. In the command prompt window type in "node app.js" and visit http://localhost:8080/ in your browser
 I hope this wasn't too complicated and if I missed any steps let me know.
 ## Basic rundown
-This app uses discord.js to fetch the last 50 messages and output it via HTMl. The outputted HTMl gets formatted to appear like Discord so it doesnt feel wonky then the messages send on the page are send via webhooks to make the message appear. The page never finishes loading at the moment that way new message requests can be sent (this might change).
+This app uses discord.js to fetch the last 50 messages and output it via HTMl. The outputted HTMl gets formatted to appear like Discord so it doesnt feel wonky then the messages send on the page are send via webhooks to make the message appear. ~~The page never finishes loading at the moment that way new message requests can be sent (this might change).~~ Websockets are used to make messages appear or send to a webhook and to request messages
