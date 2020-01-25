@@ -10,19 +10,16 @@
 		@font-face{font-family:Whitney;font-style:medium;font-weight:600;src:url('https://discordapp.com/assets/3bdef1251a424500c1b3a78dea9b7e57.woff') format('woff')}
 		@font-face{font-family:WhitneyMedium;font-style:medium;font-weight:600;src:url('https://discordapp.com/assets/be0060dafb7a0e31d2a1ca17c0708636.woff') format('woff')}
 		@font-face{font-family:Whitney;font-style:bold;font-weight:700;src:url('https://discordapp.com/assets/8e12fb4f14d9c4592eb8ec9f22337b04.woff') format('woff')}
-		.discord {
+		.discorde {
 			background-color: #36393F;
 			color: white;
 		}
 		.messages {
 			color:#fff;
 			padding-left: 10px;
-			margin-bottom: 25px;
-			height: 90%;
-			width: 90vw;
-			position: absolute;
-			top:-10px;
+			position: relative;
 			overflow-wrap: break-word;
+			top: -50px;
 		}
 		.message {
 			display: inline-block;
@@ -71,6 +68,7 @@
 		}
 		hr.discord {
 		  border-top: 1px solid #42454A;
+		  top: -50px;
 		}
 		.input {
 			position:fixed;
@@ -119,16 +117,27 @@
 		}
 		.sep {
 			border: 1px solid #42454A;
+			
 		}
 		.spacebottom {
-			height: 70px;
+			position:fixed;
+			background-color: #36393F;
+			display:inline-block;
+			margin-left: 1%;
+			margin-right: 96%;
+			width: 100%;
+			bottom:0;
+			height: 80px;
+			border: 1px solid;
+			border-top-color: #42454A;
+			border-left-color: #36393F;
+			border-right-color: #36393F;
 		}
 		::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
 			color: #707278;
 			opacity: 1; /* Firefox */
 		}
 		.timestamp {
-			z-index:1;
 			font-size: 0.75rem;
 			font-family: Whitney;
 			color: #72767d;
@@ -166,15 +175,14 @@
 		<script src="https://code.jquery.com/jquery-1.11.1.js"></script>
 		<script src="./main.js"></script>
 	</head>
-	<body class='discord'>
+	<body class='discorde'>
 		<div class="inputcontainer">
-				<input class="input" type="text" autocomplete="off" placeholder="Message #general" />
+				<input valign="bottom" class="input" type="text" autocomplete="off" placeholder="Message #general" />
 				<!-- broken lol <input type="submit" class="messager" value=">" /> -->
 			<span class="info">Type <code>!nick <nickname></code> to set your nickname</span>
 		</div>
-		<div class='messages'>
+		<div class='messages'></div>
 		<div class='spacebottom'></div>
-		</div>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
 		<script>
 			var socket = io();
