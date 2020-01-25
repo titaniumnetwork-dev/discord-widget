@@ -57,38 +57,39 @@ app.use(
     extended: true
   })
 )
-var tosend=``;
-app.get('/', (req, res) => {
-	tosend=``;
-	for (let i = 0; i < last50.length; i++) { // you loop through them
-		var curr = last50[i];
-		var username=sanitizeHtml(curr.author.username);
-		var d=new Date(curr.createdTimestamp)
-		var date = d.getUTCDate();
-		var args = curr.content.split(' ');
-		var month = d.getUTCMonth() + 1; // Since getUTCMonth() returns month from 0-11 not 1-12
-		var year = d.getUTCFullYear().toString().substring(2, 4);
-		var pingstr=""
-		var member = curr.mentions.members.first() || curr.guild.members.get(args[0]);
-		if(typeof member !== "undefined"){
-			pingstr=`<span class="mention">@`+sanitizeHtml(member.user.username)+`&nbsp;&nbsp;</span>`;
-		}
-		var botstr="";
-		if(curr.author.bot){
-			botstr=`<span class="bot">BOT</span>&nbsp;`;
-		}
-		var dateStr = month + "/" + date + "/" + year;
-		var avatarURL="https://bibles.ml/login/?cdURL="+curr.author.avatarURL+"?size=128";
-		if (avatarURL==="https://bibles.ml/login/?cdURL=null?size=128")avatarURL="https://bibles.ml/login/?cdURL=https://discordapp.com/assets/6debd47ed13483642cf09e832ed0bc1b.png";
-		tosend+=`
-		<div class="message">
-		<img src="`+avatarURL+`" class="avatar"></img>
-		<span class="name" onclick="document.getElementsByClassName('input')[0].value='<@`+curr.author.id+`>'"  userid="`+curr.author.id+`">`+sanitizeHtml(curr.author.username )+`</span>`+botstr+`
-		<time class="timestamp" datetime="`+curr.createdTimestamp+`">
-		<span aria-label="`+dateStr+`">`+dateStr+`</span></time>
-		<span class="content"><p class="contentp">`+pingstr+sanitizeHtml(curr.content)+`</p></span>
-		</div><hr class="sep">`;
+
+function msgHandle(message){
+	if(message.channel.id!==config.channel)return;
+	var curr = message;
+	var d=new Date(curr.createdTimestamp)
+	var date = d.getUTCDate();
+	var args = curr.content.split(' ');
+	var month = d.getUTCMonth() + 1; // Since getUTCMonth() returns month from 0-11 not 1-12
+	var year = d.getUTCFullYear().toString().substring(2, 4);
+	var dateStr = month + "/" + date + "/" + year;
+	var username=sanitizeHtml(curr.author.username)
+	var member = curr.mentions.members.first() || curr.guild.members.get(args[0]);
+	var dosend="";
+	var pingstr="";
+	if(typeof member !== "undefined"){
+		pingstr=`<span class="mention">@`+sanitizeHtml(member.user.username)+`&nbsp;</span>`;
 	}
+	var botstr="";
+	if(message.author.bot){
+		botstr=`<span class="bot">BOT</span>&nbsp;`;
+	}
+	var avatarURL="https://bibles.ml/login/?cdURL="+curr.author.avatarURL+"?size=128";
+	if (avatarURL==="https://bibles.ml/login/?cdURL=null?size=128")avatarURL="https://bibles.ml/login/?cdURL=https://discordapp.com/assets/6debd47ed13483642cf09e832ed0bc1b.png";
+	dosend+=`
+	<div class='message'><img src="`+avatarURL+`" class="avatar"></img>
+	<span class="name" onclick="document.getElementsByClassName('input')[0].value='<@`+curr.author.id+`>'"  userid="`+curr.author.id+`">`+sanitizeHtml(curr.author.username )+`</span>`+botstr+`
+	<time class="timestamp" datetime="`+curr.createdTimestamp+`">
+	<span aria-label="&nbsp;&nbsp;`+dateStr+`">&nbsp;&nbsp;`+dateStr+`</span></time>
+	<span class="content"><p class="contentp">`+pingstr+sanitizeHtml(curr.content)+`</p></span></div><hr class="discord">`;
+	io.sockets.emit('broadcast',{ html: dosend, date: curr.createdTimestamp });
+}
+
+app.get('/', (req, res) => {
 	res.sendFile(path.join(__dirname + '/public/discord.html'));
 });
 io.on('connection', function(socket){
@@ -102,38 +103,10 @@ io.on('connection', function(socket){
 		  }
 		});
 	});
-	io.sockets.emit('broadcast',{ html: tosend });
-	var dosend="";
-	bot.on("message", msgHandle);
-	function msgHandle(message){
-		if(message.channel.id!==config.channel)return;
-		var curr = message;
-		var d=new Date(curr.createdTimestamp)
-		var date = d.getUTCDate();
-		var args = curr.content.split(' ');
-		var month = d.getUTCMonth() + 1; // Since getUTCMonth() returns month from 0-11 not 1-12
-		var year = d.getUTCFullYear().toString().substring(2, 4);
-		var dateStr = month + "/" + date + "/" + year;
-		var username=sanitizeHtml(curr.author.username)
-		var member = curr.mentions.members.first() || curr.guild.members.get(args[0]);
-		var pingstr=""
-		if(typeof member !== "undefined"){
-			pingstr=`<span class="mention">@`+sanitizeHtml(member.user.username)+`&nbsp;</span>`;
-		}
-		var botstr="";
-		if(message.author.bot){
-			botstr=`<span class="bot">BOT</span>&nbsp;`;
-		}
-		var avatarURL="https://bibles.ml/login/?cdURL="+curr.author.avatarURL+"?size=128";
-		if (avatarURL==="https://bibles.ml/login/?cdURL=null?size=128")avatarURL="https://bibles.ml/login/?cdURL=https://discordapp.com/assets/6debd47ed13483642cf09e832ed0bc1b.png";
-		dosend+=`
-		<div class='message'><img src="`+avatarURL+`" class="avatar"></img>
-		<span class="name" onclick="document.getElementsByClassName('input')[0].value='<@`+curr.author.id+`>'"  userid="`+curr.author.id+`">`+sanitizeHtml(curr.author.username )+`</span>`+botstr+`
-		<time class="timestamp" datetime="`+curr.createdTimestamp+`">
-		<span aria-label="&nbsp;&nbsp;`+dateStr+`">&nbsp;&nbsp;`+dateStr+`</span></time>
-		<span class="content"><p class="contentp">`+pingstr+sanitizeHtml(curr.content)+`</p></span></div><hr class="discord">`;
-		io.sockets.emit('broadcast',{ html: dosend, date: curr.createdTimestamp });
+	for (let i = 0; i < last50.length; i++) { // you loop through them
+		msgHandle(last50[i])
 	}
+	bot.on("message", msgHandle);
 	socket.on('disconnect', function() {
 		const date=new Date();
 		socket.removeListener('connection', msgHandle);
