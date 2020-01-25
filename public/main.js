@@ -36,6 +36,7 @@ if (!localStorage.getItem("name")){
 	localStorage.setItem("name", generateName())
 }
 function submit(){
+	var socket = io();
 	var input=document.getElementsByClassName('input')[0].value;
 	var args = input.split(' ');
 	var yes
@@ -43,12 +44,13 @@ function submit(){
 		if(input.substring(5,7)===""){ console.log('returning'); return;}
 		localStorage.setItem("name", input.substring(5,17));
 	} else {
-		$.ajax({
+      socket.emit('webhooksend', { username: localStorage.getItem('name'), content: input });
+		/* $.ajax({
 			type: 'POST',
 			url: 'https://discordapp.com/api/webhooks/668571394476343307/IJXMiIW1iVmwiQuUaLcfn6TOl_s00nCfAk_SBsdpp7AJBXsvwPVud8no-HXm9gPWpcEA',
 			data: { "username": localStorage.getItem('name'), 
 					"content": input }
-		}); 
+		}); */
 	}
 	document.getElementsByClassName('input')[0].value="";
 }

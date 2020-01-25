@@ -7,8 +7,10 @@
     "start": "node index.js"
   },
   "dependencies": {
+    "axios": "^0.19.2",
     "body-parser": "^1.19.0",
     "bufferutil": "^4.0.1",
+    "colors": "^1.4.0",
     "discord.js": "^11.5.1",
     "ejs": "^3.0.1",
     "express": "^4.17.1",
@@ -16,8 +18,11 @@
     "jQuery": "^1.7.4",
     "jsdom": "^16.0.1",
     "read-last-lines": "^1.7.2",
-    "request": "2.81.0",
+    "request": "^2.81.0",
     "sanitize": "^2.1.0",
-    "sanitize-html": "^1.21.1"
+    "sanitize-html": "^1.21.1",
+    "socket.io": "^2.3.0",
+    "wrtc": "^0.4.3",
+    "ws": "^7.2.1"
   }
 }
