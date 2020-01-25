@@ -9,7 +9,7 @@ Contributions are greatly appreciated. as this is very early in development
 ### High priority
 - ~~Text wrapping~~ Fixed 
 - ~~Make wrapped content push other messages down~~ Fixed
-- Whatever the fuck causes the messages to get all wonky
+- ~~Whatever the fuck causes the messages to get all wonky~~ Fixed
 - Choosing a selection of webhooks to prevent timeouts from spammers
 - Message delays
 - Image attachment support
