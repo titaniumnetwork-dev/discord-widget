@@ -14,13 +14,13 @@ Contributions are greatly appreciated. as this is very early in development
 - Message delays
 - Image attachment support
 ### Normal priority
-- Add websocket support
+- ~~Add websocket support~~ Websockets added
 - Emojis
-- Displaying emojis
-- Better HTML sanitizing (added because of YOCT)
+- ~~Displaying emojis~~ Already shows as unicode
 ### Low priority
-~~- Obfuscating webhooks~~ Fixed with websockets 
-~~- Proxying POST requests for sending messages~~ Fixed with websockets
+- ~~Obfuscating webhooks~~ Fixed with websockets 
+- ~~Proxying POST requests for sending messages~~ Fixed with websockets
+- Better HTML sanitizing (added because of YOCT)
 
 ## How do I deploy this?
 1. Visit https://discordapp.com/developers/applications/
