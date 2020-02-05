@@ -7,20 +7,15 @@ Contributions are greatly appreciated. as this is very early in development
 
 ## Todo List
 ### High priority
-- ~~Text wrapping~~ Fixed 
-- ~~Make wrapped content push other messages down~~ Fixed
-- ~~Whatever the fuck causes the messages to get all wonky~~ Fixed
-- Choosing a selection of webhooks to prevent timeouts from spammers
-- Message delays
+- ~Choosing a selection of webhooks to prevent timeouts from spammers~~ spamming prevention
+- ~~Message delays~~ spamming prevention
 - Image attachment support
 ### Normal priority
-- ~~Add websocket support~~ Websockets added
 - Emojis
-- ~~Displaying emojis~~ Already shows as unicode
+- members list
 ### Low priority
-- ~~Obfuscating webhooks~~ Fixed with websockets 
-- ~~Proxying POST requests for sending messages~~ Fixed with websockets
-- Better HTML sanitizing (added because of YOCT)
+- username ban checks
+- multiple channel support
 
 ## How do I deploy this?
 1. Visit https://discordapp.com/developers/applications/
