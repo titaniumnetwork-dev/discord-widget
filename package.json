@@ -18,9 +18,11 @@
     "jQuery": "^1.7.4",
     "jsdom": "^16.0.1",
     "read-last-lines": "^1.7.2",
+    "redis": "^2.8.0",
     "request": "^2.88.0",
     "sanitize": "^2.1.0",
     "sanitize-html": "^1.21.1",
+    "socket-anti-spam": "^2.0.0",
     "socket.io": "^2.3.0",
     "wrtc": "^0.4.3",
     "ws": "^7.2.1"

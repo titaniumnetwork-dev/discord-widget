@@ -1,20 +1,36 @@
-/*   
-  Project by Zua 
-  https://github.com/thatziv/webhook 
-*/
-/*$("form").submit(function(){
-	$.post("https://discordapp.com/api/webhooks/668571394476343307/IJXMiIW1iVmwiQuUaLcfn6TOl_s00nCfAk_SBsdpp7AJBXsvwPVud8no-HXm9gPWpcEA", {"content": document.getElementsByClassName('input')[0].value, "username": "webClient",});
-	console.log('form submitted')
+function urlify(text) {
+    var urlRegex = /(https?:\/\/[^\s]+)/g;
+    return text.replace(urlRegex, function(url) {
+        return '<a class="link" href="' + url + '">' + url + '</a>';
+    })
+}
+
+var socket = io();
+var prevdate=['a', 'b', 'c'];
+var prevauthor="";
+socket.on('broadcast',function(data) {
+	if(data.channelname!=="notchannelname"){
+		document.getElementsByClassName("input")[0].placeholder="Message " + data.channelname;
+		document.title=data.channelname;
+		return;
+	}
+	if(prevdate.includes(data.date)==true)return;
+	prevdate = prevdate.concat([ data.date ]);
+	var elem = document.getElementsByClassName('messages')[0];
+	var msgs=document.getElementsByClassName('content');
+	window.scrollTo(0,document.body.scrollHeight);
+	if(prevauthor===data.authorid){
+		msgs[msgs.length-1].insertAdjacentHTML('beforeend',`<p class="contentpp">`+data.pingstr+data.content+`</p>`);
+	}else{
+		dosend=`<div class='message'><img src="`+data.avatar+`" class="avatar"></img><span class="name" onclick="document.getElementsByClassName('input')[0].value+='<@`+data.authorid+`>'"  userid="`+data.authorid+`">`+data.username+`</span>`+data.botstr+`<time class="timestamp" datetime="`+data.timestamp+`"><span aria-label="&nbsp;&nbsp;`+data.dateStr+`">&nbsp;&nbsp;`+data.dateStr+`</span></time><span class="content"><p class="contentp">`+data.pingstr+urlify(data.content)+`</p></span></div>`;
+		elem.insertAdjacentHTML('beforeend',dosend);
+	}
+	prevauthor=data.authorid
+	var d = document.getElementsByClassName('spacebottom')[0];
+	d.parentNode.appendChild(d); 
+	var scrollingElement = (document.scrollingElement || document.body);
+	scrollingElement.scrollTop = scrollingElement.scrollHeight;
 });
-$('#yeah').submit(function(event) {
-	event.preventDefault();
-	$.ajax({
-		type: 'POST',
-		url: 'https://discordapp.com/api/webhooks/668571394476343307/IJXMiIW1iVmwiQuUaLcfn6TOl_s00nCfAk_SBsdpp7AJBXsvwPVud8no-HXm9gPWpcEA',
-		data: { "username": "webClient", 
-				"content": "yeah" } //document.getElementsByClassName('input')[0].value
-	});
-}); */
 function capFirst(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
