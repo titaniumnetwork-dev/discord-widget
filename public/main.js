@@ -8,6 +8,7 @@ function urlify(text) {
 var socket = io();
 var prevdate=['a', 'b', 'c'];
 var prevauthor="";
+var prevusername="";
 socket.on('broadcast',function(data) {
 	if(data.channelname!=="notchannelname"){
 		document.getElementsByClassName("input")[0].placeholder="Message " + data.channelname;
@@ -19,13 +20,14 @@ socket.on('broadcast',function(data) {
 	var elem = document.getElementsByClassName('messages')[0];
 	var msgs=document.getElementsByClassName('content');
 	window.scrollTo(0,document.body.scrollHeight);
-	if(prevauthor===data.authorid){
+	if(prevauthor===data.authorid && data.username===prevusername){
 		msgs[msgs.length-1].insertAdjacentHTML('beforeend',`<p class="contentpp">`+data.pingstr+data.content+`</p>`);
 	}else{
-		dosend=`<div class='message'><img src="`+data.avatar+`" class="avatar"></img><span class="name" onclick="document.getElementsByClassName('input')[0].value+='<@`+data.authorid+`>'"  userid="`+data.authorid+`">`+data.username+`</span>`+data.botstr+`<time class="timestamp" datetime="`+data.timestamp+`"><span aria-label="&nbsp;&nbsp;`+data.dateStr+`">&nbsp;&nbsp;`+data.dateStr+`</span></time><span class="content"><p class="contentp">`+data.pingstr+urlify(data.content)+`</p></span></div>`;
+		dosend=`<div class='message'><img src="`+data.avatar+`" class="avatar"></img><span class="name" style="color:`+data.color+`" onclick="document.getElementsByClassName('input')[0].value+='<@`+data.authorid+`>'"  userid="`+data.authorid+`">`+data.username+`</span>`+data.botstr+`<time class="timestamp" datetime="`+data.timestamp+`"><span aria-label="&nbsp;&nbsp;`+data.dateStr+`">&nbsp;&nbsp;`+data.dateStr+`</span></time><span class="content"><p class="contentp">`+data.pingstr+urlify(data.content)+`</p></span></div>`;
 		elem.insertAdjacentHTML('beforeend',dosend);
 	}
 	prevauthor=data.authorid
+	prevusername=data.username
 	var d = document.getElementsByClassName('spacebottom')[0];
 	d.parentNode.appendChild(d); 
 	var scrollingElement = (document.scrollingElement || document.body);
