@@ -7,15 +7,12 @@ Contributions are greatly appreciated. as this is very early in development
 
 ## Todo List
 ### High priority
-- ~Choosing a selection of webhooks to prevent timeouts from spammers~~ spamming prevention
-- ~~Message delays~~ spamming prevention
 - Image attachment support
 ### Normal priority
 - Emojis
-- members list
+- Members list
 ### Low priority
-- username ban checks
-- multiple channel support
+- Multiple channel support
 
 ## How do I deploy this?
 1. Visit https://discordapp.com/developers/applications/
@@ -29,9 +26,11 @@ Contributions are greatly appreciated. as this is very early in development
 8. Run "npm install"
 9. Open up the "config.json" file once more and in Discord go in settings and under appearance you will find at the bottom "Developer Mode", make sure that is toggled on and if not toggle it. Go to the server you desire to test on and right click any channel and press "Copy ID" and select in the "config.json" file the channel field and replace the big numbers with your clipboard by pasting it into there and save the file
 10. In the discord developer website navigate to your bot and in the "general information" tab select "Copy" under the text "CLIENT ID" and visit 
-https://discordapp.com/oauth2/authorize?client_id=PasteyourCLIENTIDhere&scope=bot&permissions=346112
-and replace the "Paste your CLIENT ID" with your clipboard by selecting it and pasting it there.
+https://discordapp.com/oauth2/authorize?client_id=GAMERCLIENTID&scope=bot&permissions=346112
+and replace the "GAMERCLIENTID" with your clipboard by selecting it and pasting it there.
+12. Go to your channel you got your channel id from and press the gears icon on it and go to the Webhooks tab. Click on create webhook and fill in some details and click on "Copy" after the webhook url box. In the config.json file paste this link in the field that says "Insert webhook id 1 here"
+13. Repeat the previous step until the fields that say "Insert webhook id # here" are all filled out and are set to general which would be about 3 times.
+14. Save all changes to config.json.
 11. In the command prompt window type in "node app.js" and visit http://localhost:8080/ in your browser
-I hope this wasn't too complicated and if I missed any steps let me know.
 ## Basic rundown
-This app uses discord.js to fetch the last 50 messages and output it via HTMl. The outputted HTMl gets formatted to appear like Discord so it doesnt feel wonky then the messages send on the page are send via webhooks to make the message appear. ~~The page never finishes loading at the moment that way new message requests can be sent (this might change).~~ Websockets are used to make messages appear or send to a webhook and to request messages
+This node app uses a Discord bot to retreieve messages and their data. The data is sent over websockets and parsed by the browser and the messages send from the client are sent over websockets. All data in config.json are secure if you run the node app normally.
