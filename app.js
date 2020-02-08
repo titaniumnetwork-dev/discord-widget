@@ -95,14 +95,23 @@ function msgHandle(message){
 app.get('/', (req, res) => {
 	res.sendFile(path.join(__dirname + '/public/discord.html'));
 });
+
+function getRndInteger(min, max) {
+  return Math.floor(Math.random() * (max - min) ) + min;
+}
+
 io.on('connection', function(socket){
 	const datee=new Date();
 	console.log(`${datee}`.black.bgCyan+` Connected to socket`)
 	io.sockets.emit('broadcast',{ channelname: '#'+bot.channels.get(config.channel).name });
 	socket.on('webhooksend', function(data){
-		request.post(config.webhookid, {
+		var avat='https://uncertain-decision.ml/default'+data.avatar+'.png';
+		var webhookid=[config.webhookid,config.webhookid2,config.webhookid3,config.webhookid,config.webhookid];
+		var url=webhookid[data.avatar];
+		request.post(url, {
 		  json: {
 			"username": data.username,
+			"avatar_url": avat,
 			"content": data.content.replace('@everyone','').replace('@here','').substr(0,128)
 		  }
 		});

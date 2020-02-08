@@ -7,7 +7,7 @@ function urlify(text) {
 
 var socket = io();
 var prevdate=['a', 'b', 'c'];
-var prevauthor="";
+var prevavatar="";
 var prevusername="";
 socket.on('broadcast',function(data) {
 	if(data.channelname!=="notchannelname"){
@@ -20,14 +20,14 @@ socket.on('broadcast',function(data) {
 	var elem = document.getElementsByClassName('messages')[0];
 	var msgs=document.getElementsByClassName('content');
 	window.scrollTo(0,document.body.scrollHeight);
-	if(prevauthor===data.authorid && data.username===prevusername){
+	if(prevavatar===data.avatar && data.username===prevusername){
 		msgs[msgs.length-1].insertAdjacentHTML('beforeend',`<p class="contentpp">`+data.pingstr+data.content+`</p>`);
 	}else{
 		dosend=`<div class='message'><img src="`+data.avatar+`" class="avatar"></img><span class="name" style="color:`+data.color+`" onclick="document.getElementsByClassName('input')[0].value+='<@`+data.authorid+`>'"  userid="`+data.authorid+`">`+data.username+`</span>`+data.botstr+`<time class="timestamp" datetime="`+data.timestamp+`"><span aria-label="&nbsp;&nbsp;`+data.dateStr+`">&nbsp;&nbsp;`+data.dateStr+`</span></time><span class="content"><p class="contentp">`+data.pingstr+urlify(data.content)+`</p></span></div>`;
 		elem.insertAdjacentHTML('beforeend',dosend);
 	}
-	prevauthor=data.authorid
-	prevusername=data.username
+	prevavatar=data.avatar;
+	prevusername=data.username;
 	var d = document.getElementsByClassName('spacebottom')[0];
 	d.parentNode.appendChild(d); 
 	var scrollingElement = (document.scrollingElement || document.body);
@@ -53,31 +53,69 @@ function generateName(){
 if (!localStorage.getItem("name")){
 	localStorage.setItem("name", generateName())
 }
+if (!localStorage.getItem("avatar")){
+	localStorage.setItem("avatar", getRandomInt(1,4))
+}
 function submit(){
 	var socket = io();
 	var input=document.getElementsByClassName('input')[0].value;
 	var args = input.split(' ');
 	var yes
-	if(input.substring(0,5)=="!nick"){
+	if(input.substring(0,5)=="/nick"){
 		if(input.substring(5,7)===""){ console.log('returning'); return;}
 		localStorage.setItem("name", input.substring(5,17));
+		var d=new Date()
+		var date = d.getUTCDate();
+		var elem = document.getElementsByClassName('messages')[0];
+		dosend=`<div class='message'><img src="https://bibles.ml/login/?cdURL=https://discordapp.com/assets/f78426a064bc9dd24847519259bc42af.png" class="avatar"></img><span class="name" style="color:white">Clyde</span><span class="bot">BOT</span>&nbsp;<span class="content"><p class="contentp">Your nickname on this server has been changed to<strong>`+localStorage.getItem('name')+`</strong></p></span></div>`;
+		elem.insertAdjacentHTML('beforeend',dosend);
+		var scrollingElement = (document.scrollingElement || document.body);
+		scrollingElement.scrollTop = scrollingElement.scrollHeight;
+		
 	} else {
-      socket.emit('webhooksend', { username: localStorage.getItem('name'), content: input });
-		/* $.ajax({
-			type: 'POST',
-			url: 'https://discordapp.com/api/webhooks/668571394476343307/IJXMiIW1iVmwiQuUaLcfn6TOl_s00nCfAk_SBsdpp7AJBXsvwPVud8no-HXm9gPWpcEA',
-			data: { "username": localStorage.getItem('name'), 
-					"content": input }
-		}); */
+      socket.emit('webhooksend', { username: document.getElementsByClassName('infoname')[0].value, avatar: localStorage.getItem('avatar'), content: input });
 	}
 	document.getElementsByClassName('input')[0].value="";
 }
 $(document).keypress(function(event){
     var keycode = (event.keyCode ? event.keyCode : event.which);
     if(keycode == '13'){
-		submit();
-    }
+		if(document.activeElement === document.getElementsByClassName('input')[0]){
+			submit();
+		} else if (document.activeElement === document.getElementsByClassName('infoname')[0]){
+			document.getElementsByClassName('infoname')[0].blur();
+		}
+	}
+	
 });
-$('.messager').click(function(){
-	submit();
+(function( $ ) {
+  $.fn.replaceTag = function(newTag) {
+    var originalElement = this[0]
+    , originalTag = originalElement.tagName
+    , startRX = new RegExp('^<'+originalTag, 'i')
+    , endRX = new RegExp(originalTag+'>$', 'i')
+    , startSubst = '<'+newTag
+    , endSubst = newTag+'>'
+    , newHTML = originalElement.outerHTML
+    .replace(startRX, startSubst)
+    .replace(endRX, endSubst);
+    this.replaceWith(newHTML);
+  };
+})(jQuery);
+
+$(document).ready(function() {
+	var infoname=document.getElementsByClassName('infoname')[0];
+	document.getElementsByClassName('infoavatar')[0].setAttribute('src','https://uncertain-decision.ml/default'+localStorage.getItem("avatar")+'.png');
+	infoname.setAttribute('value',localStorage.getItem("name"));
+
+	document.getElementsByClassName('infoavatar')[0].addEventListener('click', function (e) {
+		var avatarNum=parseInt(localStorage.getItem("avatar"));
+		if(avatarNum!=4){
+			avatarNum=avatarNum+1
+		} else if (avatarNum==4){
+			avatarNum=1
+		}
+		localStorage.setItem("avatar", avatarNum)
+		document.getElementsByClassName('infoavatar')[0].setAttribute('src','https://uncertain-decision.ml/default'+localStorage.getItem("avatar")+'.png');
+	});
 });
