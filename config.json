@@ -1,7 +1,8 @@
 {
   "token": "insert token here",
   "channel": "insert channel id here",
-  "webhookid": "insert webhook id 1 here",
-  "webhookid2": "insert webhook id 2 here",
-  "webhookid3": "insert webhook id 3 here"
+  "webhookid1": "insert webhook 1 url here",
+  "webhookid2": "insert webhook 2 url here",
+  "webhookid3": "insert webhook 3 url here",
+  "logchannel":"false"
 }
