@@ -27,7 +27,6 @@ body{
 }
 .infoavatar {
 	width:32px;
-	height:32px;
 	background-size: 32px 32px;
 	float: left;
 	border-radius: 50%;
@@ -35,8 +34,25 @@ body{
 	cursor: pointer;
 	margin-top: 10px;
 }
+.github {
+	width:32px;
+	height:32px;
+	position: fixed;
+	background-size: 32px 32px;
+	fill: #fff;
+	bottom:3em;
+	float: left;
+	margin-left: 10px;
+	margin-bottom: 10px;
+	opacity:0.75;
+	/*background-image: url("./github.png");*/
+}
+.emoji {
+	width:1.375em;
+	height:1.375em;
+}
 .infoname {
-	width: 180px;
+	width: 140px;
 	height:20px;
 	float: left;
 	margin-left: 4px;
@@ -72,7 +88,7 @@ body{
 	height:100%;
 	overflow:hidden;
 	overflow-wrap: break-word;
-	margin-bottom: 75px;
+	margin-bottom: 80px;
 	margin-left: 250px;
 }
 .message {
@@ -124,7 +140,6 @@ body{
 }
 .avatar {
 	width:40px;
-	height:40x;
 	background-size: 40px 40px;
 	float: left;
 	border-radius: 50%;
@@ -146,6 +161,18 @@ hr {
 	bottom:0;
 	margin-bottom: 25px;
 	background-color:#40444B;
+}
+.input:disabled::-webkit-input-placeholder { /* WebKit browsers */
+    color:    #4E5258;
+}
+.input:disabled:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+    color:    #4E5258;
+}
+.input:disabled::-moz-placeholder { /* Mozilla Firefox 19+ */
+    color:    #4E5258;
+}
+.input:disabled:-ms-input-placeholder { /* Internet Explorer 10+ */
+    color: #4E5258;
 }
 .messager {
 	position:fixed;
