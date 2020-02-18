@@ -7,9 +7,8 @@ Contributions are greatly appreciated. as this is very early in development
 
 ## Todo List
 ### High priority
-- Image attachment support
+- Optimizie Discord API usage (fetching messages)
 ### Normal priority
-- Emojis
 - Members list
 ### Low priority
 - Multiple channel support
@@ -21,7 +20,7 @@ Contributions are greatly appreciated. as this is very early in development
 4. Press "Copy" under the blue text that says "Click to Reveal Token"
 5. Download the discord-proxy repository and extract to a folder
 6. Open up "config.json" with a text editor and in the token field, select the text "insert bot token" and paste your copied token then save the file
-6. Run "cmd.exe" or "command prompt" and navigate to the folder with the "cd" command
+6. Open a terminal of any sort (CMD or Terminal) and navigate to your folder with app.js in it using the "cd" command
 7. Make sure "node.js" and "npm" are both installed on your platform
 8. Run "npm install"
 9. Open up the "config.json" file once more and in Discord go in settings and under appearance you will find at the bottom "Developer Mode", make sure that is toggled on and if not toggle it. Go to the server you desire to test on and right click any channel and press "Copy ID" and select in the "config.json" file the channel field and replace the big numbers with your clipboard by pasting it into there and save the file
