@@ -8,6 +8,7 @@ Contributions are greatly appreciated. as this is very early in development
 ## Todo List
 ### High priority
 - Optimizie Discord API usage (fetching messages)
+- More moderation features
 ### Normal priority
 - Members list
 ### Low priority
