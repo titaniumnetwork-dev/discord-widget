@@ -16,7 +16,6 @@
     "express": "^4.17.1",
     "https": "^1.0.0",
     "inquirer": "^7.0.4",
-    "jQuery": "^1.7.4",
     "jsdom": "^16.2.0",
     "node_cloudflare": "0.0.4",
     "read-last-lines": "^1.7.2",
