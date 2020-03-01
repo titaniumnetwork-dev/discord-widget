@@ -1,8 +1,32 @@
 {
-  "token": "insert token here",
-  "channel": "insert channel id here",
-  "webhookid1": "insert webhook 1 url here",
-  "webhookid2": "insert webhook 2 url here",
-  "webhookid3": "insert webhook 3 url here",
-  "logchannel":"false"
+	"token":"insert token here",
+	"channel":"insert channel here",
+	"webhookid1":"insert webhook id 1 here",
+	"webhookid2":"insert webhook id 2 here",
+	"webhookid3":"insert webhook id 3 here",
+	"imageproxy":"https://breadsticks.ga/login/?cdURL=",
+	"helper":"name of helper role",
+	"staff":"name of staff role",
+	"logging":{
+		"value":false,
+		"channel":"insert logging channel here if value is true"
+	},
+	"clientBans":true,
+	"blacklist":[
+		".tk",
+		".cf",
+		".ga",
+		".gq",
+		".ml",
+		".dev",
+		".com",
+		".net",
+		".org",
+		".tech",
+		".io",
+		"http://",
+		"https://",
+		"dot",
+		"nigg"
+	]
 }

@@ -12,21 +12,24 @@ const bot = new Discord.Client({disableEveryone: true});
 const fs = require('fs');
 const bodyParser = require("body-parser");
 const sanitizeHtml = require('sanitize-html');
-const SocketAntiSpam  = require('socket-anti-spam')
-var messageSending = true;
-var killSwitch = false;
-var last50={};
-var chanName;
+const SocketAntiSpam  = require('socket-anti-spam');
+const ip2proxy = require("ip2proxy-nodejs");
+const blacklist=config['blacklist'];
+var messageSending = true; var killSwitch = false; var last50={}; var chanName;
 var channel=config.channel;
 var wh1=config.webhookid1;
 var wh2=config.webhookid2;
 var wh3=config.webhookid3;
-var blacklist={blacklist:['.tk','.cf','.ga','.gq','.ml','.dev','.com','.net','.org','.tech','.io','http://','https://','dot','nigg']};
 var ipbanned={banned: []};
-var logtochannelid="677309675485528078";
+var clientBans=config.clientBans
+var logging=config.logging.value;
+var loggingChannel=config.logging.channel;
+var proxURL=config.imageproxy;
+var helpername=config.helper;
+var staffname=config.staff;
 const socketAntiSpam = new SocketAntiSpam({
 	banTime:            30,
-	kickThreshold:      2,
+	kickThreshold:      3,
 	kickTimesBeforeBan: 1,
 	banning:            true,
 	io:                 io
@@ -34,125 +37,182 @@ const socketAntiSpam = new SocketAntiSpam({
 socketAntiSpam.event.on('ban', data => {
 		const date=new Date();
 		console.log(`${date}`.black.bgRed+` Spam score of 3`.red)
-		
-})
-bot.on(`ready`, async yeet => {
-	//var last50={};
-	bot.user.setStatus(`dnd`);
+});
+bot.on(`ready`, async suck => {
+	bot.user.setPresence({ activity: { type:'WATCHING', name: 'social transmissions' }, status: 'dnd' })
+		.catch(err => console.log(err));
 	bot.channels.fetch(channel).then(channel => { channel.messages.fetch({ limit: 50 }).then(messages => {
-		last50 = messages.array().reverse(); // you get the array of messages
-		console.log('Fetched last 50 messages'.black.bgYellow);
-	})});
-	bot.channels.fetch(channel).then(channel => { channel.messages.fetch({ limit: 50 }).then(messages => {
-		let arr = messages.array().reverse(); // you get the array of messages
+		let arr = messages.array().reverse();
 		last50=arr;
 	})});
+	console.log('Fetched last 50 messages'.black.bgYellow);
+	ip2proxy.Open("./IP2PROXY-LITE-PX2.BIN")
 });
-
 bot.on("message", async message => {
-	if(message.channel.type === "dm" || !message.member) return;
+	if(message.channel.type === "dm")return;
+	try { if(message.channel.id===channel){last50.push(message); last50.shift();}} catch(err) { console.log('failed to push last50') }
+	if(!message.member)return;
 	var args = message.content.split(' ');
-	var staff=message.member.roles.cache.find(r => r.name === "Staff");
-	var trusted=message.member.roles.cache.find(r => r.name === "Trusted");
-	
+	var staff=(message.member.roles.cache.find(r=>r.id==="491667301171462144") || message.member.hasPermission('MANAGE_MESSAGES') || message.member.roles.cache.find(r => r.name.toLowerCase() === staffname.toLowerCase()));
+	var trusted=message.member.roles.cache.find(r => r.name.toLowerCase() === helpername.toLowerCase());
 	if(!killSwitch){
-		bot.channels.fetch(channel).then(channel => { channel.messages.fetch({ limit: 50 }).then(messages => {
-			let arr = messages.array().reverse();
-			last50=arr;
-		})});
 		if(args[0].toLowerCase()==='-setchannel'){
 			if(staff){
 				message.guild.fetchWebhooks().then(webhooks => {
-				var num=3
-				var ee=0
-				webhooks.forEach(webhook => {
-					if(webhook['name']=='Chat Parser'){
-						ee=ee+1;
+					var num=3
+					var ee=0
+					webhooks.forEach(webhook => {
+						if(webhook['name']=='Chat Parser'){
+							ee=ee+1;
+							fs.readFile('config.json', function (err, data) {
+								var json = JSON.parse(data)
+								json[`webhookid${ee}`]=`https://discordapp.com/api/webhooks/${webhook.id}/${webhook.token}`;
+								fs.writeFile("config.json", JSON.stringify(json),function(err){ if (err) throw err;})
+							});
+							num=num-1;
+							console.log(webhook['name']+' '+webhook['id'])
+							webhook.edit({name: 'Chat Parser', channel: message.channel});
+						}
+					});
+					var i;
+					for (i = 0; i < num; i++) {
+						console.log('webhook is missing')
+						message.channel.createWebhook('Chat Parser')
 						fs.readFile('config.json', function (err, data) {
 							var json = JSON.parse(data)
-							json[`webhookid${ee}`]=`https://discordapp.com/api/webhooks/${webhook.id}/${webhook.token}`;
-							fs.writeFile("config.json", JSON.stringify(json),function(err){ if (err) throw err;})
+							json[`webhookid${i}`]=`https://discordapp.com/api/webhooks/${webhook.id}/${webhook.token}`;
+							fs.writeFile("config.json", JSON.stringify(json),function(err){ if (err) console.log(err);})
 						});
-						num=num-1;
-						console.log(webhook['name']+' '+webhook['id'])
-						webhook.edit({name: 'Chat Parser', channel: message.channel});
 					}
 				});
-				var i;
-				for (i = 0; i < num; i++) {
-					console.log('webhook is missing')
-					message.channel.createWebhook('Chat Parser')
-					fs.readFile('config.json', function (err, data) {
-						var json = JSON.parse(data)
-						json[`webhookid${i}`]=`https://discordapp.com/api/webhooks/${webhook.id}/${webhook.token}`;
-						fs.writeFile("config.json", JSON.stringify(json),function(err){ if (err) throw err;})
-					});
-				}
-				});
-				
 				fs.readFile('config.json', function (err, data) {
 					var json = JSON.parse(data)
 					json["channel"]=message.channel.id;
 					fs.writeFile("config.json", JSON.stringify(json),function(err){ if (err) throw err;})
 				});
 				channel=message.channel.id;
-				message.reply('OK, channel set to: `#'+message.channel.name+'`.').then(msg => {msg.delete({ timeout: 2000 })});
+				message.channel.send('OK, channel set to: `#'+message.channel.name+'`.').then(msg => {msg.delete({ timeout: 2000 })});
 				io.sockets.emit('channelName',{ chanName: '#'+message.channel.name });
 			}
 			message.delete();
 		}
 		if(args[0].toLowerCase()==='-togglechat'){
 			if(killSwitch==true)return;
-			if(trusted || staff){
+			if(message.author.id==="635576642370142210" || trusted || staff){
 				messageSending=!messageSending;
 				io.sockets.emit('permsChange',{ chanName: message.channel.name, messageSending: messageSending });
 				message.channel.send('OK, messageSending set to: `'+messageSending.toString()+'`.');
 			}
+		}
+		if(args[0].toLowerCase()==='-clientbans'){
+			if(killSwitch==true)return;
+			if(message.author.id==="635576642370142210" || trusted || staff){
+				clientBans=!clientBans;
+				fs.readFile('config.json', function (err, data) {
+					var json = JSON.parse(data)
+					json.clientBans=clientBans;
+					fs.writeFile("config.json", JSON.stringify(json),function(err){ if (err) throw err;})
+				});
+				message.delete();
+				message.channel.send('OK, clientBans set to: `'+clientBans.toString()+'`.').then(msg => {msg.delete({ timeout: 2000 })});
+			}
 		}}
 	if(args[0].toLowerCase()==='-ipban'){
-		if(staff){
-			message.channel.send('OK, IP will be banned.');
+		if(staff || message.author.id==="275757537327054848"){
 			fs.readFile('banned.json', function (err, data) {
 				var json = JSON.parse(data)
-				var args1=args[1]
-				json.banned.push(args1)
+				json.banned.push(args[1])
 				fs.writeFile("banned.json", JSON.stringify(json),function(err){ if (err) throw err;})
 			});
+			message.channel.send(`OK, IP **${args[1]}** will be banned.`);
+		}
+	}
+	if(args[0].toLowerCase()==='-ipunban' || args[0].toLowerCase()==='+ipban'){
+		if(staff || message.author.id==="275757537327054848"){
+			fs.readFile('banned.json', function (err, data) {
+				var json = JSON.parse(data)
+				json.banned.forEach((e,i,a) => {
+					if(e===args[1]){
+						json.banned.splice(i, 1); 
+					}
+				});
+				fs.writeFile("banned.json", JSON.stringify(json),function(err){ if (err) throw err;})
+			});
+			message.reply(`OK, IP **${args[1]}** will be unbanned.`);
+		}
+	}
+
+	if(staff && args[0].toLowerCase()==='+helper'){
+		fs.readFile('config.json', function (err, data) {
+			var json = JSON.parse(data);
+			json['helper']=args[1];
+			fs.writeFile('config.json', JSON.stringify(json),function(err){ if (err) throw err;})
+		}); helpername=args[1]; message.channel.send(`OK, role **${args[1]}** will be **added** to helper.`);
+	}
+	if(staff && args[0].toLowerCase()==='-helper'){
+		fs.readFile('config.json', function (err, data) {
+			var json = JSON.parse(data);
+			if(args[1]==json['helper']){
+				json['helper']="";
+			}
+			fs.writeFile('config.json', JSON.stringify(json),function(err){ if (err) throw err;})
+		}); helpername=''; message.channel.send(`OK, role **${args[1]}** will be **removed** from helper.`);
+	}
+
+	if(staff && args[0].toLowerCase()==='+staff'){
+		fs.readFile('config.json', function (err, data) {
+			var json = JSON.parse(data);
+			json['staff']=args[1];
+			fs.writeFile('config.json', JSON.stringify(json),function(err){ if (err) throw err;})
+		}); staffname=args[1]; message.channel.send(`OK, role **${args[1]}** will be **added** to staff.`);
+	}
+	if(staff && args[0].toLowerCase()==='-staff'){
+		fs.readFile('config.json', function (err, data) {
+			var json = JSON.parse(data);
+			if(args[1]==json['staff']){
+				json['staff']="";
+			}
+			fs.writeFile('config.json', JSON.stringify(json),function(err){ if (err) throw err;})
+		}); staffname=''; message.channel.send(`OK, role **${args[1]}** will be **removed** from staff.`);
+	}
+
+	if(args[0].toLowerCase()==='-banlist'){
+		if(staff || message.author.id==="275757537327054848"){
+			fs.readFile('config.json', function (err, data) {
+				var msg=""
+				var json = JSON.parse(data)
+				json.banned.forEach((e,i,a) => {
+					msg+='``'+e+'``, '
+				});
+				message.channel.send(msg);
+			});	
 		}
 	}
 	if(args[0].toLowerCase()==='-killswitch'){
-		if(staff){
-			killSwitch=!killSwitch;
-			message.channel.send('OK, killSwitch set to: `'+killSwitch.toString()+'`.');
+		if(staff){ killSwitch=!killSwitch; message.channel.send('OK, killSwitch set to: `'+killSwitch.toString()+'`.'); }
+	}
+	if(args[0].toLowerCase()==='+purge'){
+		if(staff || message.author.id==='361562864693149696'){//if(args[1]==='*'){message.channel.bulkDelete(fetched); return;}
+			message.delete();
+			var who = message.mentions.members.first();
+			var fetched = await message.channel.messages.fetch({limit: Number(args[2])});
+			fetched.array().forEach((e,i,a)=>{if(e.author=who.user){e.delete().catch(()=>console.log('Cannot purge messages from user, are they a webhook?'))}})
 		}
 	}
 });
-
 bot.login(config.token);
 http.listen(8080, function(){
 	console.clear()
 	console.log('Listening on port 8080'.black.bgCyan);
 });
-
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(__dirname + '/public'));
 app.engine('html', require('ejs').renderFile);
 app.set('view engine', 'html');
-app.use(
-  bodyParser.urlencoded({
-    extended: true
-  })
-)
-
-function colorToHexString(dColor) {
-    return '#' + ("000000" + (((dColor & 0xFF) << 16) + (dColor & 0xFF00) + ((dColor >> 16) & 0xFF)).toString(16)).slice(-6);
-}
-
 function msgHandle(message){
 	if(killSwitch==true)return;
 	if(message.channel.id!==channel)return;
-	//|| message.content.length===0)return;
 	var d=new Date(message.createdTimestamp)
 	var date = d.getUTCDate();
 	var args = message.content.split(' ');
@@ -163,17 +223,9 @@ function msgHandle(message){
 	if(message.member){ username=sanitizeHtml(message.member.displayName) }
 	var member = message.mentions.members.first();
 	var dosend,pingstr,botstr,authorid,embedStr;
-	if(message.member){
-		var color=message.member.roles.highest.hexColor;
-		if(color=="#000000"){
-			color="#ffffff"
-		}
-		
-	}
+	if(message.member){var color=message.member.roles.highest.hexColor;if(color=="#000000")color="#ffffff";}
 	if(typeof message.attachments.first() != 'undefined'){
 		var attachment=message.attachments.first()
-		/*console.log(JSON.stringify(message.attachments.first()))
-		console.log(message.attachments.first()['attachment'])*/
 		embedStr='<img style="vertical-align: initial; max-width: 50rem; max-height: 25rem; width:'+attachment['width']+'px; height:'+attachment['height']+'px" src="'+attachment['attachment']+'"></img>'
 	} else {
 		embedStr=""
@@ -191,21 +243,13 @@ function msgHandle(message){
 		botstr=`<span class="bot">BOT</span>&nbsp;`;
 	}
 	var oldURL=message.author.avatarURL;
-	var avatarURL="https://bibles.ml/login/?cdURL="+message.author.displayAvatarURL().replace('2048','40').replace('.gif','.gif?size=40').replace('.webp','.webp?size=40');
-	if (avatarURL==="https://bibles.ml/login/?cdURL=null?size=40")avatarURL="./default1.png";
+	var avatarURL=proxURL+message.author.displayAvatarURL({"format":"jpg","dynamic":"true","size":32});
+	if (message.author.displayAvatarURL({"format":"jpg","dynamic":"true","size":32}).includes('null'))avatarURL="./default1.png";
 	io.sockets.emit('broadcast',{ embed:embedStr, color:color, authorid:authorid, content:sanitizeHtml(message.content), dateStr: dateStr, pingstr: pingstr, timestamp: message.createdTimestamp, botstr: botstr, username: username, avatar: avatarURL, date: message.createdTimestamp, chanName: "notchannelname" });
 }
-
-app.get('/', (req, res) => {
-	res.header("Access-Control-Allow-Origin", "*"); // update to match the domain you will make the request from
-	res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-	res.sendFile(path.join(__dirname + '/public/discord.html'));
-});
-
 function getRndInteger(min, max) {
   return Math.floor(Math.random() * (max - min) ) + min;
 }
-
 function cleanString(input) {
     var output = "";
     for (var i=0; i<input.length; i++) {
@@ -216,21 +260,13 @@ function cleanString(input) {
 	output=output.trim().replace(regex,"").replace(/[\u{0080}-\u{FFFF}]/gu, "").replace(/[\x00-\x1F\x80-\xFF]/,"").replace('@everyone','').replace('@here','').substr(0,128);
 	var regex = /([^\x09\x0A\x0D\x20-\uD7FF\uE000-\uFFFC\u{10000}-\u{10FFFF}])/ug;
 	regex += /([\x7F-\x84]|[\x86-\x9F]|[\uFDD0-\uFDEF]|[\u{1FFFE}-\u{1FFFF}]|[\u{2FFFE}-\u{2FFFF}]|[\u{3FFFE}-\u{3FFFF}]|[\u{4FFFE}-\u{4FFFF}]|[\u{5FFFE}-\u{5FFFF}]|[\u{6FFFE}-\u{6FFFF}]|[\u{7FFFE}-\u{7FFFF}]|[\u{8FFFE}-\u{8FFFF}]|[\u{9FFFE}-\u{9FFFF}]|[\u{AFFFE}-\u{AFFFF}]|[\u{BFFFE}-\u{BFFFF}]|[\u{CFFFE}-\u{CFFFF}]|[\u{DFFFE}-\u{DFFFF}]|[\u{EFFFE}-\u{EFFFF}]|[\u{FFFFE}-\u{FFFFF}]|[\u{10FFFE}-\u{10FFFF}].)/ug;
-	blacklist.blacklist.forEach(element => {
-		if(output.toLowerCase().replace(' ','').includes(element)){
-			output="[REDACTED]"
-		}
-	});
+	if(new RegExp(blacklist.join("|")).test(output.toLowerCase().replace(' ','')))output="[REDACTED]";
     return output
 }
 
 io.on('connection', function(socket){
 	if(killSwitch==true)return;
 	var chan=bot.channels.fetch(channel)
-	async function yes(){
-		await new Promise(resolve => setTimeout(resolve, 1000));
-	}
-	yes();
 	bot.channels.fetch(channel).then(yee => { chanName=yee.name });
 	const datee=new Date(); 
 	var sHeaders = socket.handshake.headers;
@@ -243,62 +279,97 @@ io.on('connection', function(socket){
 	}
 	fs.appendFile("logs.txt", `\n${datee}`+' '+IP.toString()+` Connected to socket`,function(err){ if (err) throw err;})
 	console.log(`${datee}`.black.bgCyan+' '+IP.toString().black.bgGreen+` Connected to socket`)
-	
-	io.sockets.emit('channelName',{ chanName: chanName });
 	io.sockets.emit('permsChange',{ chanName: chanName, messageSending: messageSending });
-	
-	socket.on('webhooksend', function(data){
-		if(killSwitch==true)return;
-		var avat='https://pro.bibles.ml/default'+data.avatar+'.png';
+	socket.on('webhooksend', send)
+	function send(data){
+		if(killSwitch==true || data.content.length<=0 || !messageSending)return;
+		var avatardata=Number(data.avatar);
+		if(avatardata<1 || avatardata>4){avatardata===1}
+		var avat=proxURL+'https://pro.breadsticks.ga/default'+avatardata+'.png';
 		var webhookid=[config.webhookid1,config.webhookid2,config.webhookid3,config.webhookid1,config.webhookid2];
-		var url=webhookid[data.avatar];
+		var url=webhookid[avatardata];
 		var address = IP.toString()
 		var date=new Date();
-		var username = cleanString(data.username)
+		var ID=``
+		address.split(`.`).forEach(e => { ID+=e.substr(0,1) });
+		ID=(Number(ID)*2).toString()
+		var username = `${ID}: ${cleanString(data.username)}`
 		var content = cleanString(data.content);
 		var c='```';
-		var logstr=`${address} Banned: ${data.banned} <${data.username}> ${data.content.substring(0,128)}`;
-		var conlogstr=`${date}`.black.bgCyan+` `+address.black.bgGreen+` `+`Banned: ${data.banned}`.black.bgYellow+` <${data.username}> ${data.content.substring(0,128)}`;
-		console.log(conlogstr);
+		if(data.banned!=="true")data.banned="false";
+		var logstr=`${address} Banned: ${data.banned} <${data.username}> `;
+		console.log(`${date}`.black.bgCyan+` `+address.black.bgGreen+` `+`Banned: ${data.banned}`.black.bgYellow+` <${data.username}> ${data.content.substring(0,128)}`);
 		fs.appendFile("logs.txt", `\n${date}`+logstr,function(err){ if (err) throw err;})
-		if(config.logchannel=="true"){bot.channels.fetch(logtochannelid).then(channel => channel.send(`${c}`+logstr+`${c}`))}
-		if(sHeaders['CF-Real-IP']){ //if(IP.toString().substring(0, 6)=='172.68'){
+		if(sHeaders['CF-Real-IP']){
 			IP=sHeaders['CF-Real-IP'];
 			console.log('CloudFlare IP detected, using CF-Real-IP..')
 		}
-		fs.readFile('banned.json', function (err, dataa) {
-			var banned
-			if (err) console.log(err);
-			JSON.parse(dataa).banned.forEach(yes => {
-				if(IP.toString().startsWith(yes)){
-					banned=true;
+		fs.readFile('banned.json', function (err, dae) {
+			fs.readFile('vpns.json', function (erre, daee) {
+				var banned
+				if(clientBans==true && data.banned=="true")banned=true;
+				if (err) console.log(err);
+				if(ip2proxy.isProxy(IP)==1){banned=true;};
+				JSON.parse(daee).vpns.forEach(yes => {
+					if(IP.toString().startsWith(yes)){
+						banned=true;
+						return;
+					}
+				});
+				JSON.parse(dae).banned.forEach(yes => {
+					if(IP.toString().startsWith(yes)){
+						banned=true;
+						return;
+					}
+				});
+				if(banned!=true)banned=false;
+				if(logging){bot.channels.fetch(loggingChannel).then(channel => {
+					var log={
+						author: { name: `${data.username}`, icon_url: `${avat}`},
+						description: `${data.content.substring(0,128)}`,
+						timestamp: new Date(),
+						footer: {
+							text: `IP: ${address} • ID: ${ID} • Banned: ${banned}`
+						},
+					};
+					logmsg=channel.send({ embed: log });
+					channel.send('IP: `'+address+'`');
+				})}
+				if(banned==true){
+					io.sockets.emit('banned');
+					socket.disconnect();
 					return;
+				} else {
+					request.post(url, {
+						json: {
+							"username": username,
+							"avatar_url": avat,
+							"content": content
+						}
+					});
 				}
 			});
-			if(banned==true || data.banned==="true"){
-				io.sockets.emit('banned');
-				socket.disconnect();
-				if(config.logchannel=="true"){bot.channels.fetch(logtochannelid).then(channel => channel.send(`${c}${address} Banned: ${data.banned} <${username}> failed to send${c}`))}
-				return;
-			} else {
-				if(!messageSending)return;
-				request.post(url, {
-					json: {
-						"username": username,
-						"avatar_url": avat,
-						"content": content
-				}
-			});
-			}
 		});
 		
-	});
-	for (let i = 0; i < last50.length; i++) {
-		msgHandle(last50[i])
+	}
+	try {
+		last50.slice(Math.max(last50.length - 50, 1)).forEach((e,i,a) => {
+			if(i>=50)return;
+			msgHandle(e)
+		})
+	}
+	catch(err){
+		console.log('last50 do not slice')
 	}
 	bot.on("message", msgHandle);
 	socket.on('disconnect', function() {
 		const date=new Date();
-		socket.removeListener('connection', msgHandle);
+		socket.removeListener("webhooksend",function(){});
+		socket.removeListener("connection",function(){});
 	});
+});
+app.get('/', (req, res) => {
+	res.header("Access-Control-Allow-Origin", "*"); // update to match the domain you will make the request from
+	res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+	res.sendFile(path.join(__dirname + '/public/discord.html'));
 });
