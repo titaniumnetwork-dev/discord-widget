@@ -11,6 +11,7 @@ var messageSending = true;
 var prevavatar="";
 var prevusername="";
 socket.on('permsChange', function(data) {
+	document.title="#"+data.chanName;
 	if(data.messageSending==true){
 		document.getElementsByClassName('input')[0].removeAttribute('disabled');
 		document.getElementsByClassName('input')[0].setAttribute('placeholder','Message #'+data.chanName);
@@ -18,10 +19,6 @@ socket.on('permsChange', function(data) {
 		document.getElementsByClassName('input')[0].setAttribute('disabled','');
 		document.getElementsByClassName('input')[0].setAttribute('placeholder','You do not have permissions to send messages in this channel.');
 	}
-});
-socket.on('channelName', function(data) {
-	document.getElementsByClassName("input")[0].placeholder="Message #" + data.chanName;
-	document.title="#"+data.chanName;
 });
 socket.on('broadcast',function(data) {
 	if(prevdate.includes(data.date)==true)return;
@@ -65,6 +62,9 @@ if (!localStorage.getItem("name")){
 if (!localStorage.getItem("avatar")){
 	localStorage.setItem("avatar", getRandomInt(1,4))
 }
+if (!localStorage.getItem("ID")){
+	localStorage.setItem("ID", getRandomInt(1111,9999))
+}
 var previouscontent="";
 function submit(){
 	var socket = io();
@@ -84,7 +84,7 @@ function submit(){
 		
 	} else {
 		if(previouscontent!==input){
-			socket.emit('webhooksend', { username: document.getElementsByClassName('infoname')[0].value, avatar: localStorage.getItem('avatar'), content: input, banned: localStorage.getItem("banned") });
+			socket.emit('webhooksend', { username: document.getElementsByClassName('infoname')[0].value, avatar: localStorage.getItem('avatar'), content: input, banned: localStorage.getItem("banned"), ID: localStorage.getItem("ID")});
 			previouscontent=input;
 		}
 	}
@@ -118,7 +118,7 @@ $(document).keypress(function(event){
 })(jQuery);
 $(document).ready(function() {
 	var infoname=document.getElementsByClassName('infoname')[0];
-	document.getElementsByClassName('infoavatar')[0].setAttribute('src','https://pro.bibles.ml/default'+localStorage.getItem("avatar")+'.png');
+	document.getElementsByClassName('infoavatar')[0].setAttribute('src','./default'+localStorage.getItem("avatar")+'.png');
 	infoname.setAttribute('value',localStorage.getItem("name"));
 	
 	document.getElementsByClassName('infoavatar')[0].addEventListener('click', function (e) {
@@ -129,12 +129,13 @@ $(document).ready(function() {
 			avatarNum=1
 		}
 		localStorage.setItem("avatar", avatarNum)
-		document.getElementsByClassName('infoavatar')[0].setAttribute('src','https://pro.bibles.ml/default'+localStorage.getItem("avatar")+'.png');
+		document.getElementsByClassName('infoavatar')[0].setAttribute('src','./default'+localStorage.getItem("avatar")+'.png');
 	});
 	socket.on('broadcast',function(data) {
 		twemoji.parse(document.getElementsByClassName('messages')[0]);
 	});
 	socket.on('banned',function(data) {
-		localStorage.setItem("banned", "true") //the ban is also serversided but fuck you anyways
+		localStorage.setItem("banned", "true"); //the ban is also serversided but fuck you anyways
+		
 	});
 });
