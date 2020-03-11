@@ -5,6 +5,7 @@ Maintained by gamering#3223 on discord
 __If you spot an issue, bug, or a feature you want added then you can help by adding a new issue in the issues tab__
 Contributions are greatly appreciated. as this is very early in development
 
+NOTE: I noticed there was a bug where connecting via localhost would cause the script to throw an error but would work when other computers connect but that issue is fixed now.
 ## Todo List
 ### High priority
 - optimize client bans
