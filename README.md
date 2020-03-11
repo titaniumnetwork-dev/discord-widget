@@ -1,7 +1,7 @@
 # discord-proxy
 Node.js app that runs a Discord.js bot
 
-Maintained by Divide#3223 on discord
+Maintained by gamering#3223 on discord
 __If you spot an issue, bug, or a feature you want added then you can help by adding a new issue in the issues tab__
 Contributions are greatly appreciated. as this is very early in development
 
