@@ -15,9 +15,12 @@
     "ejs": "^3.0.1",
     "express": "^4.17.1",
     "express-basic-auth": "^1.2.0",
+    "http-proxy": "^1.18.0",
     "https": "^1.0.0",
+    "image-data-uri": "^2.0.1",
     "inquirer": "^7.0.4",
     "ip2proxy-nodejs": "^2.2.0",
+    "prismjs": "^1.19.0",
     "read-last-lines": "^1.7.2",
     "redis": "^2.8.0",
     "request": "^2.88.2",
@@ -26,6 +29,7 @@
     "sanitize-html": "^1.21.1",
     "socket-anti-spam": "^2.0.0",
     "socket.io": "^2.3.0",
+    "unblocker": "^2.0.5",
     "wrtc": "^0.4.4",
     "ws": "^7.2.1"
   }

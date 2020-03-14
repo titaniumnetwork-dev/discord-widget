@@ -62,6 +62,20 @@ function getUptime(){
 	var h=Math.round(ud.getUTCHours());
 	return `UPTIME: ${h} hours, ${m} minutes, ${s} seconds`
 }
+function removeElement(array, elem) {
+    var index = array.indexOf(elem);
+    if (index > -1) {
+        return array.splice(index+1, 1);
+    }
+}
+bot.on("messageDelete", async message => {
+	last50.forEach((e,i,a)=>{
+		if(e.id=message.id){
+			//a=removeElement(a,e) broken
+		};
+	});
+	io.sockets.emit('messageDelete',{ msgID: message.id });
+});
 bot.on("message", async message => {
 	if(message.channel.type === "dm")return;
 	try { if(message.channel.id===channel){last50.push(message); last50.shift();}} catch(err) { console.log('failed to push last50') }
@@ -254,7 +268,7 @@ function msgHandle(message){
 	if(message.member){var color=message.member.roles.highest.hexColor;if(color=="#000000")color="#ffffff";}
 	if(typeof message.attachments.first() != 'undefined'){
 		var attachment=message.attachments.first()
-		embedStr='<p class="contentp"><img style="vertical-align: initial; width:'+(Number(attachment['width'])*0.5)+'px; height:'+(Number(attachment['height'])*0.5)+'px" src="'+attachment['attachment']+'"></img></p>'
+		embedStr='<p class="contentp"><img style="vertical-align: initial; width:'+(Number(attachment['width'])*0.5)+'px; height:'+(Number(attachment['height'])*0.5)+'px" src="'+proxURL+attachment['attachment']+'"></img></p>'
 	} else {
 		embedStr=""
 	}
@@ -273,7 +287,7 @@ function msgHandle(message){
 	var oldURL=message.author.avatarURL;
 	var avatarURL=proxURL+message.author.displayAvatarURL({"format":"webp","dynamic":"true","size":32});
 	if (message.author.displayAvatarURL({"format":"webp","dynamic":"true","size":32}).includes('null'))avatarURL="./default1.png";
-	io.sockets.emit('broadcast',{ embed:embedStr, color:color, authorid:authorid, content:content, dateStr: dateStr, pingstr: pingstr, timestamp: message.createdTimestamp, botstr: botstr, username: username, avatar: avatarURL, date: message.createdTimestamp, chanName: "notchannelname" });
+	io.sockets.emit('message',{ msgID:message.id, embed:embedStr, color:color, authorid:authorid, content:content, dateStr: dateStr, pingstr: pingstr, timestamp: message.createdTimestamp, botstr: botstr, username: username, avatar: avatarURL, date: message.createdTimestamp, chanName: "notchannelname" });
 }
 function getRndInteger(min, max) {
   return Math.floor(Math.random() * (max - min) ) + min;
@@ -288,7 +302,11 @@ function cleanString(input) {
 	output=output.trim().replace(regex,"").replace(/[\u{0080}-\u{FFFF}]/gu, "").replace(/[\x00-\x1F\x80-\xFF]/,"").replace('@everyone','').replace('@here','').substr(0,128);
 	var regex = /([^\x09\x0A\x0D\x20-\uD7FF\uE000-\uFFFC\u{10000}-\u{10FFFF}])/ug;
 	regex += /([\x7F-\x84]|[\x86-\x9F]|[\uFDD0-\uFDEF]|[\u{1FFFE}-\u{1FFFF}]|[\u{2FFFE}-\u{2FFFF}]|[\u{3FFFE}-\u{3FFFF}]|[\u{4FFFE}-\u{4FFFF}]|[\u{5FFFE}-\u{5FFFF}]|[\u{6FFFE}-\u{6FFFF}]|[\u{7FFFE}-\u{7FFFF}]|[\u{8FFFE}-\u{8FFFF}]|[\u{9FFFE}-\u{9FFFF}]|[\u{AFFFE}-\u{AFFFF}]|[\u{BFFFE}-\u{BFFFF}]|[\u{CFFFE}-\u{CFFFF}]|[\u{DFFFE}-\u{DFFFF}]|[\u{EFFFE}-\u{EFFFF}]|[\u{FFFFE}-\u{FFFFF}]|[\u{10FFFE}-\u{10FFFF}].)/ug;
-	if(new RegExp(blacklist.join("|")).test(output.toLowerCase().replace(' ','')))output="[REDACTED]";
+	blacklist.forEach((e,i,a)=>{
+		if(!e.includes('gay') && output.toLowerCase().replace(' ','').includes(e)){
+			output="[REDACTED]";
+		}
+	});
     return output
 }
 
@@ -305,16 +323,16 @@ io.on('connection', function(socket){
 	socket.on('webhooksend', send)
 	function send(data){
 		if(killSwitch==true || data.content.length<=0 || !messageSending)return;
-		var avatardata=Number(data.avatar),
-			avat=proxURL+'https://pro.breadsticks.ga/default'+avatardata+'.png';
+		var avatardata=Number(data.avatar)-1,
 			webhookid=[config.webhookid1,config.webhookid2,config.webhookid3,config.webhookid1,config.webhookid2],
-			url=webhookid[avatardata],
 			date=new Date(),
 			username = `${ID}: ${cleanString(data.username)}`
 			content = cleanString(data.content),
-			c='```',
+			c='```',avat,
 			logstr=`${IP} Banned: ${data.banned} <${data.username}> `;
-		if(avatardata<1 || avatardata>4){avatardata===1};
+		if(!avatardata>=0 || !avatardata<=4){avatardata=0};
+		avat=proxURL+'https://pro.breadsticks.ga/default'+avatardata+'.png';
+		url=webhookid[avatardata];
 		if(data.banned!=="true")data.banned="false";
 		console.log(`${date}`.black.bgCyan+` `+IP.black.bgGreen+` `+`Banned: ${data.banned}`.black.bgYellow+` <${data.username}> ${data.content.substring(0,128)}`);
 		fs.appendFile("logs.txt", `\n${date}`+logstr,function(err){ if (err) throw err;})
