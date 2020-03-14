@@ -326,9 +326,10 @@ io.on('connection', function(socket){
 		var avatardata=Number(data.avatar)-1,
 			webhookid=[config.webhookid1,config.webhookid2,config.webhookid3,config.webhookid1,config.webhookid2],
 			date=new Date(),
-			username = `${ID}: ${cleanString(data.username)}`
+			username = `${ID}: ${cleanString(data.username)}`,
 			content = cleanString(data.content),
-			c='```',avat,
+			c='```',
+			avat,
 			logstr=`${IP} Banned: ${data.banned} <${data.username}> `;
 		if(!avatardata>=0 || !avatardata<=4){avatardata=0};
 		avat=proxURL+'https://pro.breadsticks.ga/default'+avatardata+'.png';
