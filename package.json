@@ -2,7 +2,7 @@
   "name": "ChatParser",
   "description": "Chat Parser",
   "version": "2.0.0",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
     "start": "node app.js"
   },
