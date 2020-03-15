@@ -22,20 +22,28 @@ socket.on('permsChange', function(data) {
 });
 var prevData;
 var start=1;
-socket.on('broadcast',function(data) {
+socket.on('messageDelete',function(data) {
+	console.log(data);
+	var elem = document.getElementsByClassName('messages')[0];
+	var msgthing=document.getElementById(data.msgID)
+	msgthing.innerHTML='[RETRACTED]';
+	msgthing.style['color']='grey';
+	msgthing.style['font-style']='italic';
+});
+socket.on('message',function(data) {
 	if(prevdate.includes(data.date)==true)return;
 	prevdate = prevdate.concat([ data.date ]);
 	var elem = document.getElementsByClassName('messages')[0];
 	var msgs=document.getElementsByClassName('content');
 	window.scrollTo(0,document.body.scrollHeight);
 	if(prevavatar===data.avatar && data.username===prevusername){
-		msgs[msgs.length-1].insertAdjacentHTML('beforeend',`<p class="contentpp">${data.pingstr+data.content}</p>`);
+		msgs[msgs.length-1].insertAdjacentHTML('beforeend',`<p msgid="`+data.msgID+`" class="contentpp">${data.pingstr+data.content}</p>`);
 	}else{
 		data['content']=urlify(data.content).split('<pre>');
 		if(data.content[1]){
-			data['content']='<p class="contentp">'+data.pingstr+data.content[0]+'<pre>'+data['content'][1]+'</pre></p>'
+			data['content']=`<p id="${data.msgID}" class="contentp">'+data.pingstr+data.content[0]+'<pre>'+data['content'][1]+'</pre></p>`
 		} else {
-			data['content']='<p class="contentp">'+data.pingstr+data.content[0]+'</p>'
+			data['content']=`<p id="${data.msgID}" class="contentp">${data.pingstr+data.content[0]}</p>`
 		}
 		var msg=document.createElement('div');
 		var ava=document.createElement('img');
