@@ -332,7 +332,7 @@ io.on('connection', function(socket){
 			avat,
 			logstr=`${IP} Banned: ${data.banned} <${data.username}> `;
 		if(!avatardata>=0 || !avatardata<=4){avatardata=0};
-		avat=proxURL+'https://pro.breadsticks.ga/default'+avatardata+'.png';
+		avat='https://pro.breadsticks.ga/default'+(avatardata+1)+'.png';
 		url=webhookid[avatardata];
 		if(data.banned!=="true")data.banned="false";
 		console.log(`${date}`.black.bgCyan+` `+IP.black.bgGreen+` `+`Banned: ${data.banned}`.black.bgYellow+` <${data.username}> ${data.content.substring(0,128)}`);
@@ -370,8 +370,7 @@ io.on('connection', function(socket){
 								text: `IP: ${IP} • ID: ${ID} • Banned: ${banned}`
 							},
 						};
-						logmsg=channel.send({ embed: log });
-						channel.send('IP: `'+IP+'`');
+						logmsg=channel.send('`'+IP+'`', { embed: log });
 					})}
 				}
 				catch{
@@ -410,6 +409,20 @@ io.on('connection', function(socket){
 		socket.removeListener("connection",function(){});
 	});
 });
+var Unblocker;
+try {
+	Unblocker = require('unblocker');
+}
+catch(e) {
+	var date=new Date();
+	console.log(`${date}`.black.bgCyan+`Unblocker not work :(((`); //console.log(data);
+	console.log(e);
+}
+var configg = {
+    prefix: '/;/'
+}
+
+app.use(new Unblocker(configg));
 app.get('/', (req, res) => {
 	res.header("Access-Control-Allow-Origin", "*"); // update to match the domain you will make the request from
 	res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
