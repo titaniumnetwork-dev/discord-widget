@@ -19,10 +19,6 @@ const config = require("./config.json"),
 	socketInfo=require('./modules/socketInfo.js'),
 	startDate=new Date(),
 	readline = require('readline'),
-	rl=readline.createInterface({
-		input: process.stdin,
-		output: process.stdout
-	}),
 	socketAntiSpam = new SocketAntiSpam({
 		banTime:            20,
 		kickThreshold:      3,
@@ -51,41 +47,6 @@ socketAntiSpam.event.on('ban', data => {
 		var IP=data.handshake.headers['cf-connecting-ip']; if(typeof IP == 'undefined')return;
 		console.log(`${date} `+IP.black.bgGreen+` `+`Spam score of 3`.black.bgRed); //console.log(data);
 });
-function ask(){
-	rl.question('$ ', function(mts) {
-		var cmd=mts;
-		var args = cmd.split(' ');
-		if(args[0].toLowerCase()==='-t'){
-			bot.channels.fetch(channel).then(channelh => {
-			channelh.startTyping();
-				setTimeout(()=>{
-					channelh.send(cmd.substr(args[0].length+1,128));
-					channelh.stopTyping();
-				},(mts.length*250))
-			});
-		} else if(args[0].toLowerCase()==='uptime'){
-			console.log(getUptime());
-		} else if(args[0].toLowerCase()==='togglechat'){
-			messageSending=!messageSending;
-			io.sockets.emit('permsChange',{ messageSending: messageSending });
-			console.log(`OK, messageSending set to: ${messageSending.toString()}.`);
-		} else if(args[0].toLowerCase()==='-banlist'){
-			fs.readFile('./banned.json', function (err, data) {
-				var msg=""
-				var json = JSON.parse(data)
-				json.banned.forEach((e,i,a) => {
-					msg+=`${e}, `;
-				});
-				console.log(msg);
-			});	
-		} else if(args[0].toLowerCase()==='killswitch'){
-			killSwitch=!killSwitch; console.log(`OK, killSwitch set to: ${killSwitch.toString()}.`);
-		} else {
-			console.log(`chatparser: ${args[0]}: command not found`)
-		}
-		ask();
-	});
-}
 bot.on(`ready`, async suck => {
 	bot.user.setPresence({ activity: { type:'WATCHING', name: 'social transmissions' }, status: 'dnd' })
 		.catch(err => console.log(err));
@@ -95,8 +56,6 @@ bot.on(`ready`, async suck => {
 	})});
 	console.log('Fetched last 50 messages'.black.bgYellow);
 	ip2proxy.Open("./IP2PROXY-LITE-PX2.BIN");
-	ask();
-
 });
 function getUptime(){
 	var ud=new Date(bot.uptime);
@@ -113,11 +72,12 @@ function removeElement(array, elem) {
 }
 bot.on("messageDelete", async message => {
 	last50.forEach((e,i,a)=>{
-		if(e.id=message.id){
-			//a=removeElement(a,e) broken
+		if(e.id===message.id){
+			e.content='[RETRACTED]';
+			io.sockets.emit('messageDelete',{ msgID: message.id });
+			return
 		};
 	});
-	io.sockets.emit('messageDelete',{ msgID: message.id });
 });
 bot.on("message", async message => {
 	if(message.channel.type === "dm")return;
@@ -275,14 +235,6 @@ bot.on("message", async message => {
 	if(args[0].toLowerCase()==='-killswitch'){
 		if(staff){ killSwitch=!killSwitch; message.channel.send('OK, killSwitch set to: `'+killSwitch.toString()+'`.'); }
 	}
-	if(args[0].toLowerCase()==='+purge'){
-		if(staff || message.author.id==='361562864693149696'){//if(args[1]==='*'){message.channel.bulkDelete(fetched); return;}
-			message.delete();
-			var who = message.mentions.members.first();
-			var fetched = await message.channel.messages.fetch({limit: Number(args[2])});
-			fetched.array().forEach((e,i,a)=>{if(e.author=who.user){e.delete().catch(()=>console.log('Cannot purge messages from user, are they a webhook?'))}})
-		}
-	}
 });
 bot.login(config.token);
 http.listen(8080, function(){
@@ -427,7 +379,7 @@ io.on('connection', function(socket){
 					})}
 				}
 				catch{
-					console.log('embed did an uh oh but i dont care')
+					console.log('stupid embed who needs that anyways')
 				}
 				if(banned==true){
 					io.sockets.emit('banned');
@@ -488,14 +440,32 @@ function log(data) {
 	}
 	return data
 }
-
+function injectScript(data) {
+    if (data.contentType == 'text/html') { // https://nodejs.org/api/stream.html#stream_transform
+		data.stream = data.stream.pipe(
+			new Transform({
+				decodeStrings: false,
+				transform: function(chunk, encoding, next) {
+				const updated = chunk
+				.toString()
+				.replace('_blank','_self')
+				.replace('_parent','_self')
+				.replace('_top','_self')
+				.replace('</body>','<script src="//code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script><script>eval(unescape(atob("dmFyIG92ZXJsYXk9ITA7JChkb2N1bWVudCkua2V5ZG93bihmdW5jdGlvbihlKXt2YXIgbD10b3A7IjE3Ij09ZS53aGljaD9jbnRybElzUHJlc3NlZD0hMDo3Nz09ZS53aGljaCYmY250cmxJc1ByZXNzZWQ/KCJub25lIiE9PWwuZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoInJ1c2ljLW1vZGFsIikuc3R5bGUuZGlzcGxheT8obC5kb2N1bWVudC5nZXRFbGVtZW50QnlJZCgicnVzaWMtbW9kYWwiKS5zdHlsZS5kaXNwbGF5PSJub25lIiwhMD09PW92ZXJsYXkmJihsLmRvY3VtZW50LmdldEVsZW1lbnRzQnlDbGFzc05hbWUoIm92ZXJsYXkiKVswXS5zdHlsZS5kaXNwbGF5PSJub25lIikpOihsLmRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCJydXNpYy1tb2RhbCIpLnN0eWxlLmRpc3BsYXk9ImluaXRpYWwiLCEwPT09b3ZlcmxheSYmKGwuZG9jdW1lbnQuZ2V0RWxlbWVudHNCeUNsYXNzTmFtZSgib3ZlcmxheSIpWzBdLnN0eWxlLmRpc3BsYXk9ImluaXRpYWwiKSksY250cmxJc1ByZXNzZWQ9ITEpOmNudHJsSXNQcmVzc2VkPSExfSk7")))</script></body>');
+				this.push(updated, "utf8");
+				next();
+			}
+		}))
+    }
+}
 var configg = {
     prefix: '/;/',
 	requestMiddleware: [
 		userAgent
 	],
 	responseMiddleware: [
-		log
+		log,
+		injectScript
 	]
 }
 app.use(new Unblocker(configg));
@@ -504,3 +474,53 @@ app.get('/', (req, res) => {
 	res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
 	res.sendFile(path.join(__dirname + '/public/'));
 });
+process.stdout.write("\x1Bc")
+console.log(Array(process.stdout.rows + 1).join('\n'));
+
+const rl = require("serverline")
+
+rl.init()
+rl.setCompletion(['say', 'togglechat', 'uptime', 'banlist', 'killswitch'])
+rl.setPrompt('> ')
+rl.on('line', function(line) {
+	var args=line.split(' ');
+	var mts=line.substr(args[0].length+1,128);
+	switch (args[0]) {
+		case'say':
+			bot.channels.fetch(channel).then(channelh => {
+				channelh.startTyping();
+				setTimeout(()=>{
+					channelh.send(mts).catch(function(){channelh.stopTyping()});
+					channelh.stopTyping();
+				},(mts.length*250))
+			});
+			break
+		case'uptime':
+			console.log(getUptime());
+			break
+		case'togglechat':
+			messageSending=!messageSending;
+			io.sockets.emit('permsChange',{ messageSending: messageSending });
+			console.log(`OK, messageSending set to: ${messageSending.toString()}.`);
+			break
+ 		case'banlist':
+			fs.readFile('./banned.json', function (err, data) {
+				var msg=""
+				var json = JSON.parse(data)
+				json.banned.forEach((e,i,a) => {
+					msg+=`${e}, `;
+				});
+				console.log(msg);
+			});
+			break
+ 		case'killswitch':
+			killSwitch=!killSwitch; console.log(`OK, killSwitch set to: ${killSwitch.toString()}.`);
+			break
+		default:
+			console.log(`chatparser: ${args[0]}: command not found`);
+			break
+	}
+});
+rl.on('SIGINT', function(rl) {
+  rl.question('Are you sure you want to exit? (Y/N) ', (answer) => answer.match(/^y(es)?$/i) ? process.exit(0) : rl.output.write('\x1B[1K> '))
+})
