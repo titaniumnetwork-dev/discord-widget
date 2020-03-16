@@ -1,6 +1,6 @@
 const config = require("./config.json"),
 	colors = require('colors'),
-	request = require('request'),
+	fetch = require('node-fetch'),
 	express = require('express'),
 	app = require('express')(),
 	http = require('http').createServer(app),
@@ -52,7 +52,7 @@ socketAntiSpam.event.on('ban', data => {
 		console.log(`${date} `+IP.black.bgGreen+` `+`Spam score of 3`.black.bgRed); //console.log(data);
 });
 function ask(){
-	rl.question('', function(mts) {
+	rl.question('$ ', function(mts) {
 		var cmd=mts;
 		var args = cmd.split(' ');
 		if(args[0].toLowerCase()==='-t'){
@@ -68,7 +68,7 @@ function ask(){
 		} else if(args[0].toLowerCase()==='togglechat'){
 			messageSending=!messageSending;
 			io.sockets.emit('permsChange',{ messageSending: messageSending });
-			console.log('OK, messageSending set to: `'+messageSending.toString()+'`.');
+			console.log(`OK, messageSending set to: ${messageSending.toString()}.`);
 		} else if(args[0].toLowerCase()==='-banlist'){
 			fs.readFile('./banned.json', function (err, data) {
 				var msg=""
@@ -81,7 +81,7 @@ function ask(){
 		} else if(args[0].toLowerCase()==='killswitch'){
 			killSwitch=!killSwitch; console.log(`OK, killSwitch set to: ${killSwitch.toString()}.`);
 		} else {
-			console.log('Unknown command. Check your spelling and try again.'.white.bgRed)
+			console.log(`chatparser: ${args[0]}: command not found`)
 		}
 		ask();
 	});
@@ -434,12 +434,15 @@ io.on('connection', function(socket){
 					socket.disconnect();
 					return;
 				} else {
-					request.post(url, {
-						json: {
-							"username": username,
-							"avatar_url": avat,
-							"content": content
-						}
+					var body={
+						"username": username,
+						"avatar_url": avat,
+						"content": content
+					};
+					fetch(url, {
+						method: 'post',
+						body:    JSON.stringify(body),
+						headers: { 'Content-Type': 'application/json' },
 					});
 				}
 			});
@@ -497,7 +500,7 @@ var configg = {
 }
 app.use(new Unblocker(configg));
 app.get('/', (req, res) => {
-	res.header("Access-Control-Allow-Origin", "*"); // update to match the domain you will make the request from
+	res.header("Access-Control-Allow-Origin", "*");
 	res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
 	res.sendFile(path.join(__dirname + '/public/'));
 });
