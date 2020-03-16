@@ -14,9 +14,15 @@ const config = require("./config.json"),
 	sanitizeHtml = require('sanitize-html'),
 	SocketAntiSpam  = require('socket-anti-spam'),
 	ip2proxy = require("ip2proxy-nodejs"),
+	sleep = require('sleep'),
 	blacklist=config['blacklist'],
 	socketInfo=require('./modules/socketInfo.js'),
 	startDate=new Date(),
+	readline = require('readline'),
+	rl=readline.createInterface({
+		input: process.stdin,
+		output: process.stdout
+	}),
 	socketAntiSpam = new SocketAntiSpam({
 		banTime:            20,
 		kickThreshold:      3,
@@ -45,6 +51,41 @@ socketAntiSpam.event.on('ban', data => {
 		var IP=data.handshake.headers['cf-connecting-ip']; if(typeof IP == 'undefined')return;
 		console.log(`${date} `+IP.black.bgGreen+` `+`Spam score of 3`.black.bgRed); //console.log(data);
 });
+function ask(){
+	rl.question('', function(mts) {
+		var cmd=mts;
+		var args = cmd.split(' ');
+		if(args[0].toLowerCase()==='-t'){
+			bot.channels.fetch(channel).then(channelh => {
+			channelh.startTyping();
+				setTimeout(()=>{
+					channelh.send(cmd.substr(args[0].length+1,128));
+					channelh.stopTyping();
+				},(mts.length*250))
+			});
+		} else if(args[0].toLowerCase()==='uptime'){
+			console.log(getUptime());
+		} else if(args[0].toLowerCase()==='togglechat'){
+			messageSending=!messageSending;
+			io.sockets.emit('permsChange',{ messageSending: messageSending });
+			console.log('OK, messageSending set to: `'+messageSending.toString()+'`.');
+		} else if(args[0].toLowerCase()==='-banlist'){
+			fs.readFile('./banned.json', function (err, data) {
+				var msg=""
+				var json = JSON.parse(data)
+				json.banned.forEach((e,i,a) => {
+					msg+=`${e}, `;
+				});
+				console.log(msg);
+			});	
+		} else if(args[0].toLowerCase()==='killswitch'){
+			killSwitch=!killSwitch; console.log(`OK, killSwitch set to: ${killSwitch.toString()}.`);
+		} else {
+			console.log('Unknown command. Check your spelling and try again.'.white.bgRed)
+		}
+		ask();
+	});
+}
 bot.on(`ready`, async suck => {
 	bot.user.setPresence({ activity: { type:'WATCHING', name: 'social transmissions' }, status: 'dnd' })
 		.catch(err => console.log(err));
@@ -53,7 +94,9 @@ bot.on(`ready`, async suck => {
 		last50=arr;
 	})});
 	console.log('Fetched last 50 messages'.black.bgYellow);
-	ip2proxy.Open("./IP2PROXY-LITE-PX2.BIN")
+	ip2proxy.Open("./IP2PROXY-LITE-PX2.BIN");
+	ask();
+
 });
 function getUptime(){
 	var ud=new Date(bot.uptime);
@@ -206,7 +249,17 @@ bot.on("message", async message => {
 			fs.writeFile('config.json', JSON.stringify(json),function(err){ if (err) throw err;})
 		}); staffname=''; message.channel.send(`OK, role **${args[1]}** will be **removed** from staff.`);
 	}
-
+	if(staff && args[0].toLowerCase()==='-t'){
+		var mts=message.content.substr(2,128);
+		message.delete();
+		bot.channels.fetch(channel).then(channelh => {
+        channelh.startTyping();
+			setTimeout(()=>{
+				channelh.send(mts);
+				channelh.stopTyping();
+			},(mts.length*250))
+		});
+	}
 	if(args[0].toLowerCase()==='-banlist'){
 		if(staff || message.author.id==="275757537327054848"){
 			fs.readFile('./banned.json', function (err, data) {
@@ -409,6 +462,7 @@ io.on('connection', function(socket){
 		socket.removeListener("connection",function(){});
 	});
 });
+function extractHostname(url){var hostname;if (url.indexOf("//") > -1){hostname = url.split('/')[2]}else{hostname = url.split('/')[0];}hostname = hostname.split(':')[0];hostname = hostname.split('?')[0];return hostname.replace('www.','')}
 var Unblocker;
 try {
 	Unblocker = require('unblocker');
@@ -418,10 +472,29 @@ catch(e) {
 	console.log(`${date}`.black.bgCyan+`Unblocker not work :(((`); //console.log(data);
 	console.log(e);
 }
-var configg = {
-    prefix: '/;/'
+var Transform = require('stream').Transform;
+
+function userAgent(data){
+	data.headers['user-agent'] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36 OPR/12";
+	return data
+}
+function log(data) {
+	if(data.contentType == 'text/html'){
+		var a=extractHostname(data.url);
+		console.log(`${new Date()}`.black.bgCyan+` ${a}`);
+	}
+	return data
 }
 
+var configg = {
+    prefix: '/;/',
+	requestMiddleware: [
+		userAgent
+	],
+	responseMiddleware: [
+		log
+	]
+}
 app.use(new Unblocker(configg));
 app.get('/', (req, res) => {
 	res.header("Access-Control-Allow-Origin", "*"); // update to match the domain you will make the request from
