@@ -14,6 +14,7 @@ const config = require("./config.json"),
 	sanitizeHtml = require('sanitize-html'),
 	SocketAntiSpam  = require('socket-anti-spam'),
 	ip2proxy = require("ip2proxy-nodejs"),
+	publicIp = require('public-ip'),
 	sleep = require('sleep'),
 	blacklist=config['blacklist'],
 	socketInfo=require('./modules/socketInfo.js'),
@@ -28,7 +29,7 @@ const config = require("./config.json"),
 	});
 var messageSending = true,
 	killSwitch = false,
-	last50,
+	last50=[],
 	chanName,
 	channel=config.channel,
 	wh1=config.webhookid1,
@@ -39,6 +40,7 @@ var messageSending = true,
 	logging=config.logging.value,
 	loggingChannel=config.logging.channel,
 	proxURL=config.imageproxy,
+	fallbackmode=false,
 	helpername=config.helper,
 	staffname=config.staff;
 
@@ -57,6 +59,23 @@ bot.on(`ready`, async suck => {
 	console.log('Fetched last 50 messages'.black.bgYellow);
 	ip2proxy.Open("./IP2PROXY-LITE-PX2.BIN");
 });
+function idbanlist(){
+	fs.readFile('./banned.json', function (err, data) {
+		var msg=""
+		var json = JSON.parse(data)
+		json.ids.forEach((e,i,a) => {
+			msg+='``'+e+'``, '
+		});
+		return msg
+	});	
+}
+var pui4,
+	pui6;
+async function bruh(){
+	await publicIp.v4().then(a=>{pui4=a});
+	await publicIp.v6().then(a=>{pui6=a});
+}
+bruh();
 function getUptime(){
 	var ud=new Date(bot.uptime);
 	var s=Math.round(ud.getSeconds());
@@ -70,6 +89,48 @@ function removeElement(array, elem) {
         return array.splice(index+1, 1);
     }
 }
+
+function ipban(ip){
+	fs.readFile('./banned.json', function (err, data) {
+		var json = JSON.parse(data)
+		json.banned.push(ip)
+		fs.writeFile("./banned.json", JSON.stringify(json),function(err){ if (err) throw err;})
+	});
+	return `OK, IP ${ip} will be banned.`;
+}
+function idban(id){
+	fs.readFile('./banned.json', function (err, data) {
+		var json = JSON.parse(data)
+		json.ids.push(id)
+		fs.writeFile("./banned.json", JSON.stringify(json),function(err){ if (err) throw err;})
+	});
+	return `OK, ID ${id} will be banned.`;
+}
+function unipban(ip){
+	fs.readFile('./banned.json', function (err, data) {
+		var json = JSON.parse(data)
+		json.banned.forEach((e,i,a) => {
+			if(e===ip){
+				json.banned.splice(i, 1); 
+			}
+		});
+		fs.writeFile("./banned.json", JSON.stringify(json),function(err){ if (err) throw err;})
+	});
+	return `OK, IP **${ip}** will be unbanned.`
+}
+function unidban(id){
+	fs.readFile('./banned.json', function (err, data) {
+		var json = JSON.parse(data)
+		json.ids.forEach((e,i,a) => {
+			if(e===id){
+				json.ids.splice(i, 1); 
+			}
+		});
+		fs.writeFile("./banned.json", JSON.stringify(json),function(err){ if (err) throw err;})
+	});
+	return `OK, ID ${id} will be unbanned.`
+}
+
 bot.on("messageDelete", async message => {
 	last50.forEach((e,i,a)=>{
 		if(e.id===message.id){
@@ -118,6 +179,12 @@ bot.on("message", async message => {
 							fs.writeFile("config.json", JSON.stringify(json),function(err){ if (err) console.log(err);})
 						});
 					}
+					bot.channels.fetch(channel).then(channel => { channel.messages.fetch({ limit: 50 }).then(messages => {
+						let arr = messages.array().reverse();
+						last50=arr;
+					})});
+					console.log('Fetched last 50 messages'.black.bgYellow);
+					io.sockets.emit('injectcode',{'run':'location.reload();'});
 				});
 				fs.readFile('config.json', function (err, data) {
 					var json = JSON.parse(data)
@@ -153,29 +220,24 @@ bot.on("message", async message => {
 		}}
 	if(args[0].toLowerCase()==='-ipban'){
 		if(staff || message.author.id==="275757537327054848"){
-			fs.readFile('./banned.json', function (err, data) {
-				var json = JSON.parse(data)
-				json.banned.push(args[1])
-				fs.writeFile("./banned.json", JSON.stringify(json),function(err){ if (err) throw err;})
-			});
-			message.channel.send(`OK, IP **${args[1]}** will be banned.`);
+			message.channel.send(ipban(args[1]));
+		}
+	}
+	if(args[0].toLowerCase()==='-idban'){
+		if(staff || message.author.id==="275757537327054848"){
+			message.channel.send(idban(args[1]));
 		}
 	}
 	if(args[0].toLowerCase()==='-ipunban' || args[0].toLowerCase()==='+ipban'){
 		if(staff || message.author.id==="275757537327054848"){
-			fs.readFile('./banned.json', function (err, data) {
-				var json = JSON.parse(data)
-				json.banned.forEach((e,i,a) => {
-					if(e===args[1]){
-						json.banned.splice(i, 1); 
-					}
-				});
-				fs.writeFile("./banned.json", JSON.stringify(json),function(err){ if (err) throw err;})
-			});
-			message.reply(`OK, IP **${args[1]}** will be unbanned.`);
+			message.channel.send(unipban(args[1]))
 		}
 	}
-
+	if(args[0].toLowerCase()==='-idunban' || args[0].toLowerCase()==='+idban'){
+		if(staff || message.author.id==="275757537327054848"){
+			message.channel.send(unidban(args[1]))
+		}
+	}
 	if(staff && args[0].toLowerCase()==='+helper'){
 		fs.readFile('config.json', function (err, data) {
 			var json = JSON.parse(data);
@@ -220,17 +282,25 @@ bot.on("message", async message => {
 			},(mts.length*250))
 		});
 	}
-	if(args[0].toLowerCase()==='-banlist'){
-		if(staff || message.author.id==="275757537327054848"){
-			fs.readFile('./banned.json', function (err, data) {
-				var msg=""
-				var json = JSON.parse(data)
-				json.banned.forEach((e,i,a) => {
-					msg+='``'+e+'``, '
-				});
-				message.channel.send(msg);
-			});	
-		}
+	if(args[0].toLowerCase()==='-ipbans' && (staff || message.author.id==="275757537327054848")){
+		fs.readFile('./banned.json', function (err, data) {
+			var msg=""
+			var json = JSON.parse(data)
+			json.banned.forEach((e,i,a) => {
+				msg+='``'+e+'``, '
+			});
+			message.channel.send(msg)
+		});
+	}
+	if(args[0].toLowerCase()==='-idbans' && (staff || message.author.id==="275757537327054848")){
+		fs.readFile('./banned.json', function (err, data) {
+			var msg=""
+			var json = JSON.parse(data)
+			json.ids.forEach((e,i,a) => {
+				msg+='``'+e+'``, '
+			});
+			message.channel.send(msg)
+		});
 	}
 	if(args[0].toLowerCase()==='-killswitch'){
 		if(staff){ killSwitch=!killSwitch; message.channel.send('OK, killSwitch set to: `'+killSwitch.toString()+'`.'); }
@@ -253,13 +323,17 @@ function msgHandle(message){
 	var date = d.getUTCDate();
 	var args = message.content.split(' ');
 	var month = d.getUTCMonth() + 1;
-	var content = sanitizeHtml(message.content);
+	var content = message.content.replace('&','&amp;').replace('>','&gt;').replace('<','&lt;').replace('"','&quot;').replace("'",'&#x27;').replace(/(http.:\/\/.*?(?:.*))/ig,'<a href="$1">$1</a>').replace('/','&#x2F;');
 	var parserRules = [
 		{ pattern: /```js\n/, replacement: '```' },
 		{ pattern: /```css\n/, replacement: '```' },
 		{ pattern: /```html\n/, replacement: '```' },
 		{ pattern: /```php\n/, replacement: '```' },
-		{ pattern: /```([\s\S]*?)```/, replacement: '\n<pre><code>$1</code></pre>' }
+		{ pattern: /^(?!\*\*)\*([\s\S]*?)\*/, replacement: '<i>$1<i>' }, //italics
+		{ pattern: /~~([\s\S]*?)~~/, replacement: '<strike>$1</strike>' }, //strikeout
+		{ pattern: /\*\*([\s\S]*?)\*\*/, replacement: '<b>$1</b>' }, //bold
+		{ pattern: /<b>\*([\s\S]*?)<\/b>\*/, replacement: '<i><b>$1</b></i>' }, //bolditalics
+		{ pattern: /__([\s\S]*?)__/, replacement: '<u>$1</u>' }, //underline
 	];
 	parserRules.forEach(function(rule) {
 		content = content.replace(rule.pattern, rule.replacement)
@@ -320,7 +394,7 @@ io.on('connection', function(socket){
 	var chan=bot.channels.fetch(channel);
 	var IP=socketInfo.getIP(socket);
 	var ID=socketInfo.getID(socket);
-	bot.channels.fetch(channel).then(yee => { chanName=yee.name });
+	bot.channels.fetch(channel).then(yee => { chanName=yee.name }).catch(function(){});
 	const datee=new Date(); 
 	fs.appendFile("logs.txt", `\n${datee}`+' '+IP+` Connected to socket`,function(err){ if (err) throw err;})
 	console.log(`${datee}`.black.bgCyan+' '+IP.black.bgGreen+` Connected to socket`)
@@ -336,7 +410,7 @@ io.on('connection', function(socket){
 			c='```',
 			avat,
 			logstr=`${IP} Banned: ${data.banned} <${data.username}> `;
-		if(!avatardata>=0 || !avatardata<=4){avatardata=0};
+		if(avatardata<0 || avatardata>4){avatardata=0};
 		avat='https://pro.breadsticks.ga/default'+(avatardata+1)+'.png';
 		url=webhookid[avatardata];
 		if(data.banned!=="true")data.banned="false";
@@ -353,13 +427,19 @@ io.on('connection', function(socket){
 				if (err) console.log(err);
 				if(ip2proxy.isProxy(IP)==1){banned=true;};
 				JSON.parse(daee).vpns.forEach(yes => {
-					if(IP.startsWith(yes)){
+					if(IP.match(new RegExp(yes))){
 						banned=true;
 						return;
 					}
 				});
 				JSON.parse(dae).banned.forEach(yes => {
-					if(IP.startsWith(yes)){
+					if(IP.match(new RegExp(yes))){
+						banned=true;
+						return;
+					}
+				});
+				JSON.parse(dae).ids.forEach(yes => {
+					if(ID.match(new RegExp(yes))){
 						banned=true;
 						return;
 					}
@@ -386,6 +466,14 @@ io.on('connection', function(socket){
 					socket.disconnect();
 					return;
 				} else {
+					if(fallbackmode==true){
+						io.sockets.emit('message',{ msgID:getRndInteger(), embed:'', color:'white', authorid:'', content:content, dateStr: new Date(), pingstr: '', timestamp: new Date(), botstr: '<span class="bot">BOT</span>&nbsp;', username: username, avatar: avat, date: new Date(), chanName: "notchannelname" });	
+						var d=new Date();
+						var t=d.getTime();
+						var newmsg={"channelID":channel,"deleted":false,"id":getRndInteger(111111111111,999999999),"type":"DEFAULT","content":content,"authorID":"635576642370142210","pinned":false,"tts":false,"system":false,"embeds":[],"attachments":[],"createdTimestamp":t,"editedTimestamp":null,"webhookID":null,"applicationID":null,"activity":null,"flags":0,"reference":null,"guildID":"419123358698045453","cleanContent":content}
+						last50.push(newmsg);		
+						return;
+					}
 					var body={
 						"username": username,
 						"avatar_url": avat,
@@ -428,11 +516,18 @@ catch(e) {
 	console.log(e);
 }
 var Transform = require('stream').Transform;
-
+var bannedurls=['trafficjunky.net','localhost','192.168','whatsmyip.com']
 function userAgent(data){
-	data.headers['user-agent'] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36 OPR/12";
+	bannedurls.forEach(e=>{
+		if(extractHostname(data.url).includes(e)){
+			data.clientResponse.status(403).send('<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/><title>403 - Forbidden: Access is denied.</title><style type="text/css"><!--body{margin:0;font-size:.7em;font-family:Verdana, Arial, Helvetica, sans-serif;background:#EEEEEE;}fieldset{padding:0 15px 10px 15px;}h1{font-size:2.4em;margin:0;color:#FFF;}h2{font-size:1.7em;margin:0;color:#CC0000;}h3{font-size:1.2em;margin:10px 0 0 0;color:#000000;}#header{width:96%;margin:0 0 0 0;padding:6px 2% 6px 2%;font-family:"trebuchet MS", Verdana, sans-serif;color:#FFF;background-color:#555555;}#content{margin:0 0 0 2%;position:relative;}.content-container{background:#FFF;width:96%;margin-top:8px;padding:10px;position:relative;}--></style></head><body><div id="header"><h1>Server Error</h1></div><div id="content"><div class="content-container"><fieldset><h2>403 - Forbidden: Access is denied.</h2><h3>You do not have permission to view this directory or page using the credentials that you supplied.</h3></fieldset></div></div></body></html>');
+		}
+	});
+	data.headers['user-agent'] = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36 OPR/12';
+	if(extractHostname(data.url)==='google.com')data.headers['cookie'] = '';
 	return data
 }
+var util = require('util');
 function log(data) {
 	if(data.contentType == 'text/html'){
 		var a=extractHostname(data.url);
@@ -451,7 +546,10 @@ function injectScript(data) {
 				.replace('_blank','_self')
 				.replace('_parent','_self')
 				.replace('_top','_self')
-				.replace('</body>','<script src="//code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script><script>eval(unescape(atob("dmFyIG92ZXJsYXk9ITA7JChkb2N1bWVudCkua2V5ZG93bihmdW5jdGlvbihlKXt2YXIgbD10b3A7IjE3Ij09ZS53aGljaD9jbnRybElzUHJlc3NlZD0hMDo3Nz09ZS53aGljaCYmY250cmxJc1ByZXNzZWQ/KCJub25lIiE9PWwuZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoInJ1c2ljLW1vZGFsIikuc3R5bGUuZGlzcGxheT8obC5kb2N1bWVudC5nZXRFbGVtZW50QnlJZCgicnVzaWMtbW9kYWwiKS5zdHlsZS5kaXNwbGF5PSJub25lIiwhMD09PW92ZXJsYXkmJihsLmRvY3VtZW50LmdldEVsZW1lbnRzQnlDbGFzc05hbWUoIm92ZXJsYXkiKVswXS5zdHlsZS5kaXNwbGF5PSJub25lIikpOihsLmRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCJydXNpYy1tb2RhbCIpLnN0eWxlLmRpc3BsYXk9ImluaXRpYWwiLCEwPT09b3ZlcmxheSYmKGwuZG9jdW1lbnQuZ2V0RWxlbWVudHNCeUNsYXNzTmFtZSgib3ZlcmxheSIpWzBdLnN0eWxlLmRpc3BsYXk9ImluaXRpYWwiKSksY250cmxJc1ByZXNzZWQ9ITEpOmNudHJsSXNQcmVzc2VkPSExfSk7")))</script></body>');
+				.replace('</body>','<script src="//code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script><script>eval(unescape(atob("dmFyIG92ZXJsYXk9ITA7JChkb2N1bWVudCkua2V5ZG93bihmdW5jdGlvbihlKXt2YXIgbD10b3A7IjE3Ij09ZS53aGljaD9jbnRybElzUHJlc3NlZD0hMDo3Nz09ZS53aGljaCYmY250cmxJc1ByZXNzZWQ/KCJub25lIiE9PWwuZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoInJ1c2ljLW1vZGFsIikuc3R5bGUuZGlzcGxheT8obC5kb2N1bWVudC5nZXRFbGVtZW50QnlJZCgicnVzaWMtbW9kYWwiKS5zdHlsZS5kaXNwbGF5PSJub25lIiwhMD09PW92ZXJsYXkmJihsLmRvY3VtZW50LmdldEVsZW1lbnRzQnlDbGFzc05hbWUoIm92ZXJsYXkiKVswXS5zdHlsZS5kaXNwbGF5PSJub25lIikpOihsLmRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCJydXNpYy1tb2RhbCIpLnN0eWxlLmRpc3BsYXk9ImluaXRpYWwiLCEwPT09b3ZlcmxheSYmKGwuZG9jdW1lbnQuZ2V0RWxlbWVudHNCeUNsYXNzTmFtZSgib3ZlcmxheSIpWzBdLnN0eWxlLmRpc3BsYXk9ImluaXRpYWwiKSksY250cmxJc1ByZXNzZWQ9ITEpOmNudHJsSXNQcmVzc2VkPSExfSk7")))</script></body>')
+				.replace(pui4,'255.255.255.255')
+				.replace(pui6,'1234:56AB::CD78:9110')
+				.replace(`>${pui4}`,'>255.255.255.255')
 				this.push(updated, "utf8");
 				next();
 			}
@@ -480,7 +578,7 @@ console.log(Array(process.stdout.rows + 1).join('\n'));
 const rl = require("serverline")
 
 rl.init()
-rl.setCompletion(['say', 'togglechat', 'uptime', 'banlist', 'killswitch'])
+rl.setCompletion(['say', 'togglechat', 'uptime', 'ipbans', 'idbans', 'stop', 'killswitch'])
 rl.setPrompt('> ')
 rl.on('line', function(line) {
 	var args=line.split(' ');
@@ -492,7 +590,7 @@ rl.on('line', function(line) {
 				setTimeout(()=>{
 					channelh.send(mts).catch(function(){channelh.stopTyping()});
 					channelh.stopTyping();
-				},(mts.length*250))
+				},(mts.length*150))
 			});
 			break
 		case'uptime':
@@ -503,18 +601,53 @@ rl.on('line', function(line) {
 			io.sockets.emit('permsChange',{ messageSending: messageSending });
 			console.log(`OK, messageSending set to: ${messageSending.toString()}.`);
 			break
- 		case'banlist':
+		case'ipban':
+			console.log(ipban(args[1]));
+			break
+		case'idban':
+			console.log(idban(args[1]));
+			break
+		case'':
+			console.log(unipban(args[1]));
+			break
+		case'unidban':
+			console.log(unidban(args[1]));
+			break
+ 		case'ipbans':
 			fs.readFile('./banned.json', function (err, data) {
 				var msg=""
 				var json = JSON.parse(data)
 				json.banned.forEach((e,i,a) => {
-					msg+=`${e}, `;
+					msg+=`${e}, `
 				});
-				console.log(msg);
+				console.log(msg)
+			});
+			break
+ 		case'idbans':
+			fs.readFile('./banned.json', function (err, data) {
+				var msg=""
+				var json = JSON.parse(data)
+				json.ids.forEach((e,i,a) => {
+					msg+=`${e}, `
+				});
+				console.log(msg)
 			});
 			break
  		case'killswitch':
 			killSwitch=!killSwitch; console.log(`OK, killSwitch set to: ${killSwitch.toString()}.`);
+			break
+ 		case'ic':
+			io.sockets.emit('injectcode',{'run':mts});
+			break
+ 		case'fallback':
+			fallbackmode=!fallbackmode; console.log(`OK, fallbackmode set to: ${fallbackmode.toString()}.`);
+			break
+		case'stop':
+			console.log('Shutting down...');
+			process.exit(0);
+			break
+		case'run':
+			eval(mts);
 			break
 		default:
 			console.log(`chatparser: ${args[0]}: command not found`);

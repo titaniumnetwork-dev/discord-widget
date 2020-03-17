@@ -129,6 +129,7 @@ body{
 	word-wrap: break-word;
 	color:white;
 }
+
 .contentp { 
 	position:relative;
 	margin-left: 3.3rem;
@@ -249,11 +250,4 @@ hr {
 .mention:hover {
 	color: #ffffff;
 	background-color:#6071AC;
-}
-.link {
-	color: #00b0f4
-}
-.link:hover {
-	color: #00b0f4;
-	text-decoration: underline;
 }
