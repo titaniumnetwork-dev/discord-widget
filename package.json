@@ -27,7 +27,6 @@
     "sanitize": "^2.1.0",
     "sanitize-html": "^1.21.1",
     "serverline": "^1.4.2",
-    "sleep": "^6.1.0",
     "socket-anti-spam": "^2.0.0",
     "socket.io": "^2.3.0",
     "unblocker": "^2.0.5",
