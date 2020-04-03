@@ -306,9 +306,10 @@ bot.on("message", async message => {
 	}
 });
 bot.login(config.token);
-http.listen(8080, function(){
+var port = process.env.PORT || 8080;
+http.listen(port, function(){
 	console.clear()
-	console.log('Listening on port 8080'.black.bgCyan);
+	console.log(`Listening on port ${port}`.black.bgCyan);
 });
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
