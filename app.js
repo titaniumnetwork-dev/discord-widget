@@ -572,7 +572,8 @@ app.get('/', (req, res) => {
 	res.sendFile(path.join(__dirname + '/public/'));
 });
 process.stdout.write("\x1Bc")
-console.log(Array(process.stdout.rows + 1).join('\n'));
+//console.log(Array(process.stdout.rows + 1).join('\n'));
+console.log("\n");
 
 const rl = require("serverline")
 
