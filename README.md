@@ -31,3 +31,4 @@ Contributions are greatly appreciated. as this is very early in development
 11. In a terminal type in "node app.js" and visit http://localhost:8080/ in your browser
 ## Basic rundown
 This node app fetches a set of messages in a channel and sends it to the clients to read them and the clients can send a message to the server that will be filtered then the server will fire a webhook with the data to send a message.
+[![Run on Repl.it](https://repl.it/badge/github/titaniumnetwork-dev/discord-widget)](https://repl.it/github/titaniumnetwork-dev/discord-widget)
