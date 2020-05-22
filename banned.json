@@ -1,1 +1,8 @@
-{"banned":["255.255.255.255"],"ids":["example"]}
+{
+	"ips": [
+		"placeholder"
+	],
+	"ids": [
+		"placeholder"
+	]
+}

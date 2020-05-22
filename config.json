@@ -1,18 +1,35 @@
 {
-	"token":"insert token here",
-	"channel":"insert channel here",
-	"webhookid1":"insert webhook id 1 here",
-	"webhookid2":"insert webhook id 2 here",
-	"webhookid3":"insert webhook id 3 here",
-	"imageproxy":"/;/",
-	"helper":"name of helper role",
-	"staff":"name of staff role",
-	"logging":{
-		"value":false,
-		"channel":"insert logging channel here if value is true"
+	"port": 8080,
+	"token": "Insert token here",
+	"channel": "Insert channel here",
+	"webhookUrl0": "Insert your first webhook URL here",
+	"webhookUrl1": "Insert your second webhook URL here",
+	"webhookUrl2": "Insert your third webhook URL here",
+	"helpers": [
+		{
+			"type": "role",
+			"value": "Helper"
+		},
+		{
+			"type": "role",
+			"value": "Assistant"
+		}
+	],
+	"mods": [
+		{
+			"type": "role",
+			"value": "Administrator"
+		},
+		{
+			"type": "role",
+			"value": "Moderator"
+		}
+	],
+	"logging": {
+		"value": false,
+		"channel": "If above is true, set this to logging channel"
 	},
-	"clientBans":true,
-	"blacklist":[
+	"blacklist": [
 		".tk",
 		".cf",
 		".ga",
@@ -24,9 +41,14 @@
 		".org",
 		".tech",
 		".io",
+		".ly",
+		"tinyurl",
+		"shorturl",
 		"http://",
 		"https://",
 		"dot",
 		"nigg"
-	]
+	],
+	"imageproxy": "/;/",
+	"clientBans": false
 }
