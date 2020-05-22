@@ -1,3 +1,6 @@
+/*
+stop moving tags into this file, it may be effective but its literally gonna get overridden by bootstrap stuff
+*/
 body{
 	height:100%;
 	margin:0;
@@ -10,22 +13,66 @@ body{
 @font-face{font-family:Whitney;font-style:medium;font-weight:600;src:url('https://discordapp.com/assets/3bdef1251a424500c1b3a78dea9b7e57.woff') format('woff')}
 @font-face{font-family:WhitneyMedium;font-style:medium;font-weight:600;src:url('https://discordapp.com/assets/be0060dafb7a0e31d2a1ca17c0708636.woff') format('woff')}
 @font-face{font-family:Whitney;font-style:bold;font-weight:700;src:url('https://discordapp.com/assets/8e12fb4f14d9c4592eb8ec9f22337b04.woff') format('woff')}
-.bar {
+.notif {
+	display: inline-block;
+	width: 600px;
+	color: white;
+	background-color: #4A4E56;
+	font-family: Whitney;
+	text-align: center;
+	cursor: default;
+	height: 27px;
+	line-height: 27px;
+	margin-top:5px;
+	border-radius:5px;
+}
+
+#notifs {
+	margin: 0 auto;
+	z-index:100;
+	position: fixed;
+	bottom: 80px;
+    right: 0;
+    left: 0;
+	text-align: center;
+	width: 600px;
+}
+#close-notif{
+	float:right;
+	margin-right:10px;
+	width:20px;
+	cursor:pointer;
+}
+#notifs::selection{
+	background:#4A4E56;
+	color:white;
+}
+
+#bar {
 	position: fixed;
 	width: 240px;
 	height: 100%;
 	background-color: #2F3136;
 	z-index:60;
 }
-.userinfo {
-	position: fixed;
-	width: 240px;
+#tfwLine {
+	border-left: solid 4px #555B63;
+	border-top-left-radius: 4px;
+	border-bottom-left-radius: 4px;
+}
+#userinfo {
+	display: block;
+	width: 100%;
 	bottom: 0;
 	height: 53px;
 	background-color: #292B2F;
 	z-index:60;
 }
-.infoavatar {
+*::selection{
+	background:#0A68D8;
+	color:white;
+}
+#infoavatar {
 	width:32px;
 	background-size: 32px 32px;
 	float: left;
@@ -34,25 +81,44 @@ body{
 	cursor: pointer;
 	margin-top: 10px;
 }
-.github {
-	width:32px;
-	height:32px;
+#github {
 	position: fixed;
-	background-size: 32px 32px;
+	bottom:10px;
+}
+#acc{
+	position: relative;
+	top:0;
+	cursor:pointer;
+}
+#acc, #github{
+	width:16px;
+	height:16px;
+	margin-left:20px;
 	fill: #fff;
-	bottom:3em;
-	float: left;
-	margin-left: 10px;
-	margin-bottom: 10px;
 	opacity:0.75;
-	/*background-image: url("./github.png");*/
 }
 .emoji {
 	width:1.375em;
 	height:1.375em;
 }
-.infoname {
+#tag {
+	float: left;
+	margin-left: 5px;
+	margin-top: -4px;
+	border-radius: 7px;
+	font-weight: 400;
+	font-style: normal;
+	font-size: 12px;
+	cursor: pointer;
+	font-family: Whitney;
+	-moz-box-flex: 1;
+	color: #B9BBBE;
+	outline: none;
 	width: 140px;
+	height: 20px;
+}
+#infoname {
+	width: 130px;
 	height:20px;
 	float: left;
 	margin-left: 4px;
@@ -72,23 +138,22 @@ body{
 	background-color: transparent;
 	outline: none;
 }
-.infoname:hover {
+#infoname:hover {
 	outline: none;
 	background-color: #34353b;
 }
-.infoname:focus {
+#infoname:focus {
 	outline: none;
 	font-weight: 500;
 	background-color: #303237;
 }
-.messages {
+#messages {
 	background-color: #36393F;
 	padding-left: 10px;
 	position: relative;
-	height:100%;
-	overflow:hidden;
+	height: calc(100vh - 70px);
+	overflow-y: scroll;
 	overflow-wrap: break-word;
-	margin-bottom: 80px;
 	margin-left: 250px;
 }
 #message {
@@ -130,10 +195,12 @@ body{
 	color:white;
 }
 
-.contentp { 
-	position:relative;
+.contentp {
+	position: relative;
 	margin-left: 3.3rem;
+	min-height: 19.5px;
 }
+
 .contentpp {
 	margin-top: -8px;	
 	position:relative;
@@ -141,9 +208,20 @@ body{
 }
 .avatar {
 	width:40px;
+	height:40px;
 	background-size: 40px 40px;
 	float: left;
 	border-radius: 50%;
+	cursor:pointer;
+	position:relative;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+}
+.avatar:active{
+	top:2px;
 }
 hr {
 	border-top-color: #42454A;
@@ -156,7 +234,7 @@ hr {
 	border-style:none;
 	font-family:Whitney,sans-serif;
 	padding-left: 5px;
-	width:84.6%;
+	width:calc(100% - 270px);
 	height: 45px;
 	margin-left:10px;
 	bottom:0;
@@ -202,20 +280,11 @@ hr {
 	width:95.6%;
 	text-align:center;
 }
-.inputcontainer {
+#inputcontainer {
 	margin-left: 1.3%;
 	margin-left: 240px;
 }
-.spacebottom {
-	position:fixed;
-	display:inline-block;
-	width: 100%;
-	bottom:0;
-	height: 70px;
-	z-index:2;
-	background-color: #36393F;
-}
-::placeholder {
+#input::placeholder {
 	color: #707278;
 	opacity: 1;
 }
@@ -225,6 +294,7 @@ hr {
 	color: #72767d;
 	position: relative;
 	right:0;
+	cursor:default;
 }
 .mention {
 	background-color:#3C414F;
@@ -250,4 +320,42 @@ hr {
 .mention:hover {
 	color: #ffffff;
 	background-color:#6071AC;
+}
+
+a:hover {
+color: #00b0f4;
+text-decoration: underline;
+}
+a {
+color: #00b0f4;
+text-decoration: none;
+background-color: transparent;
+}
+#editedTag {
+color: #707278;
+font-size: 0.6rem;
+cursor:default;
+margin-left: 4px;
+}
+.things{
+display: block;
+margin:0;
+margin-top:0;
+overflow-y:scroll;
+height: calc(100% - 53px);
+top:0;
+padding: 10px;
+background-color:#1F2023;
+}
+.thing{
+color:#b1b5ba;
+font-family:Whitney;
+display:block;
+font-size:0.8rem;
+margin-left:5px;
+margin-right:5px;
+margin-bottom:5px;
+}
+.thing1{
+font-size: 1rem;
 }

@@ -1,54 +1,104 @@
 <!DOCTYPE HTML>
-<head>
-	<title>‮</title>
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-	<link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAACxklEQVRYhe2Vz08TQRTHNyFe9Q/gbOLV/4DEP2lX/AGShhBjsltEAoVqMIgXaJBwERWUEFTEcGhJjDPb7Q+2tVKWbaVLu9222/16sBDbobSFFjz4Td5h8jLvfea9eTMcV5HPhy5ekgd4iaR4kaAjJpEUL8kDPh+6uFrxEu3vWGIGhPYzAIJI9IsCEESisxW4qNNX7D9ASwDu6QjWtlIIUAOv1zU8fBrC45koPLMqPLMqhmeieDQVxmd/GtEfJta2UnBPR84P4BpXsC0bSOoWAtQAiWRh5m3Uk5EtYVs2IO9kkTVtBKgB17hydgA/ycC2Hdi2UzdpPRWLZQCAn2TOBjA4qaDcel5GZQcYnGSr0BBg5Yt+/uwVLW/stw6QOii2DSB1UGwNwD0dOTGQVSgjFMvBKpQZ32HORjieQ6nOfamdilMBFlf3mABm3saQNwReJBjyhqqmQUsX0D8aBC8SjLyMwj7h8iyu7jUP4CcZJkCAGlUBAtQ49n3Y1Kt88WSe2V87DacCJDSLCaClC+h1U/AiQa+bQksXjn1BNXu898FYEHmLbVFCs5oHqPfY7CRMLK1r2EmYjO97+BBvPmpI6iw88KeFTQP83UEHQM6s//rVk2nZVXfBAZoHqD1FQrPwflOHouYaPk7qTxOrX3VEa6qU1FtogcujIBTLVQUoO8DWtwPcH5HhmVUxv7yLpXUNbz/t49VKEs/mYxgYC2Ij8IsZxVAsB5dHaR6AFwkEkWBqIY5t2UDmsISS7WBiTm34zU7MqSjZDjKVj2lqIQ7hrJ9RJ+0/wD8IIFGznQkEkeyeFpMBEETyor0A1Oh1y7d4iWaaArjjDV8TRLLS5ir03HUrN3mJ7jcEONI9Sb4hiKSnHdY3LHdzHMfdfhK+zks01hRAp9Q3LHfzEg1cGgDHcZxrVLkqiOTdpQFwHMd5vbgiSPT50fo3pdQDJlkZnnwAAAAASUVORK5CYII=">
-		<script src="https://code.jquery.com/jquery-1.11.1.js" crossorigin="anonymous"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js" crossorigin="anonymous"></script>
-		<script src="https://twemoji.maxcdn.com/v/12.1.5/twemoji.min.js" integrity="sha384-E4PZh8MWwKQ2W7ANni7xwx6TTuPWtd3F8mDRnaMvJssp5j+gxvP2fTsk1GnFg2gG" crossorigin="anonymous"></script>
-		<link href='css/box.css?aebc' rel='stylesheet'>
+<html>
+	<head>
+		<title>‮</title>
+		<meta charset="utf-8">
+		<link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAACxklEQVRYhe2Vz08TQRTHNyFe9Q/gbOLV/4DEP2lX/AGShhBjsltEAoVqMIgXaJBwERWUEFTEcGhJjDPb7Q+2tVKWbaVLu9222/16sBDbobSFFjz4Td5h8jLvfea9eTMcV5HPhy5ekgd4iaR4kaAjJpEUL8kDPh+6uFrxEu3vWGIGhPYzAIJI9IsCEESisxW4qNNX7D9ASwDu6QjWtlIIUAOv1zU8fBrC45koPLMqPLMqhmeieDQVxmd/GtEfJta2UnBPR84P4BpXsC0bSOoWAtQAiWRh5m3Uk5EtYVs2IO9kkTVtBKgB17hydgA/ycC2Hdi2UzdpPRWLZQCAn2TOBjA4qaDcel5GZQcYnGSr0BBg5Yt+/uwVLW/stw6QOii2DSB1UGwNwD0dOTGQVSgjFMvBKpQZ32HORjieQ6nOfamdilMBFlf3mABm3saQNwReJBjyhqqmQUsX0D8aBC8SjLyMwj7h8iyu7jUP4CcZJkCAGlUBAtQ49n3Y1Kt88WSe2V87DacCJDSLCaClC+h1U/AiQa+bQksXjn1BNXu898FYEHmLbVFCs5oHqPfY7CRMLK1r2EmYjO97+BBvPmpI6iw88KeFTQP83UEHQM6s//rVk2nZVXfBAZoHqD1FQrPwflOHouYaPk7qTxOrX3VEa6qU1FtogcujIBTLVQUoO8DWtwPcH5HhmVUxv7yLpXUNbz/t49VKEs/mYxgYC2Ij8IsZxVAsB5dHaR6AFwkEkWBqIY5t2UDmsISS7WBiTm34zU7MqSjZDjKVj2lqIQ7hrJ9RJ+0/wD8IIFGznQkEkeyeFpMBEETyor0A1Oh1y7d4iWaaArjjDV8TRLLS5ir03HUrN3mJ7jcEONI9Sb4hiKSnHdY3LHdzHMfdfhK+zks01hRAp9Q3LHfzEg1cGgDHcZxrVLkqiOTdpQFwHMd5vbgiSPT50fo3pdQDJlkZnnwAAAAASUVORK5CYII=">
+		<link href='css/box.css' rel='stylesheet'>
 		<link href='css/bootstrap.min.css' rel='stylesheet'>
-		<script src="js/yeye.js?abc"></script>
-		<style>
-pre {
-	font-size: inherit;
-	color: #B9BBBE;
-	word-wrap: break-word;
-	background-color: #2F3136;
-	width: 87%;
-	margin-left: 3.3rem;
-	display: block;
-	border: #202225 1px solid;
-	border-radius: 3px;
-	padding: 6px;
-	font-family: Whitney;
-}
-code {
-	font-size:inherit;
-	font-family: inherit
-}
-a:hover {
-	color: #00b0f4;
-	text-decoration: underline;
-}
-a {
-	color: #00b0f4;
-	text-decoration: none;
-	background-color: transparent;
-}</style>
+		<style>pre{font-size: inherit;color: #B9BBBE;word-wrap: break-word;background-color: #2F3136;width: 87%;margin-left: 3.3rem;display: block;border: #202225 1px solid;border-radius: 3px;padding: 6px;font-family: Whitney;}code{font-size:inherit;font-family: inherit}a{color:#00b0f4;text-decoration:none;background-color:transparent}a:hover{color: #00b0f4;text-decoration: underline}#account{position:absolute;z-index:80;width:100%;height:100%;background-color:#00000054}.accStuff{background-color:#36393f;height:250px;width:50%;border:0;border-radius:6px;display:block;position:absolute;margin:auto auto;right:0;left:0;top:0;bottom:0;font-family:Whitney}#accregister{height:275px;width:35%}.inputauth{border:solid 1px #1e1f23;background-color:#27282c;color:#dcddde;height:40px;border-radius:3px;display:block;outline:0;margin:10px;font-size:16px;width:calc(100% - 20px)}.inputauth:focus{border:solid 1px #6e84d0;outline:0}.inputsubmit{margin-left:10px;border:0;font-weight:600;height:40px;width:calc(100% - 20px);margin-top:10px;font-size:16px;border-radius:3px;background-color:#7289da;color:#fffdfd}#fieldlabel{color:#8e9297;text-transform:uppercase;font-size:11px;font-weight:700;margin:.8rem}.accText{font-family:Whitney;color:#6e7178;font-weight:400;font-size:14px;margin-left:.8rem}.accLink{font-family:Whitney;color:#6d82cf;font-weight:400;font-size:14px}.accLink:hover{color:#6d82cf;text-decoration:underline;cursor:pointer}#avatarUser{border-radius:100%;width:100px;height:100px;display:block;margin:30px 30px;position:absolute}#otherThings{margin-left:150px}#logout{color:#ea4546;background-color:transparent;position:absolute;bottom:0;border:solid 1px #6e3d41;margin:30px 30px;padding-left:12px;padding-right:12px;padding-top:2px;padding-bottom:2px;border-radius:4px;transition:ease .2s;cursor:pointer;-webkit-touch-callout:none;-webkit-user-select:none;-khtml-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}#logout:hover{color:#fff;background-color:#ea4546}</style>
+		<base target="_blank">
 	</head>
 	<body style="background-color: #36393F;">
-		<div class="bar">
-			<div class="userinfo">
-				<img class="infoavatar" />
-				<input type="text" class="infoname" maxlength="12" />
+		<style>
+.discon-main{
+	position:absolute;
+	z-index:1500;
+	display:none;
+	top:0;
+	bottom:0;
+	left:0;
+	right:0;
+	width:100%;
+	height:100%;
+	background-color:#1c3c58;
+}
+.discon-h1{
+	font-weight:400;
+	font-size:26px;
+}
+.discon-wrapper{
+	position:relative;
+	font-size:20px;
+	display:block;
+	padding:20px;
+	color:#fff;
+	font-family:"Segoe UI", sans-serif;
+	text-shadow: 0px 1px 3px rgba(0, 0, 0, 0.35);
+	font-weight:200;
+}
+		</style>
+		<div class='discon-main'>
+			<div class='discon-wrapper'>
+				<h1 class='discon-h1'>Disconnected from server</h1>
+				<p class='discon-msg'>Trying to reconnect...</p>
+				<p class='discon-attempts'>0/0</p>
 			</div>
-			<a href="https://github.com/DivideDaniel/discord-proxy"><svg class="github" height="32" viewBox="0 0 16 16" version="1.1" width="32" aria-hidden="true"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path></svg></a>
 		</div>
-		<div class="inputcontainer">
+		<div id="bar">
+			<div class='things'>
+				<span class='thing thing1'><a href="" target="_blank">yew</a></span>
+				<span class='thing'><strong>Rules:</strong></span>
+				<span class='thing'>be kewl</span>
+			</div>
+			<div id="userinfo">
+				<img id="infoavatar" />
+				<input type="text" id="infoname" maxlength="12" />
+				<span id="tag">#0000</span>
+				<a href="https://github.com/titaniumnetwork-dev/discord-widget"><svg id="github" height="32" viewBox="0 0 16 16" version="1.1" width="32" aria-hidden="true"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path></svg></a>
+				<svg id="acc" viewBox="0 -256 1792 1792" id="svg2989" version="1.1"><g transform="matrix(1,0,0,-1,318.91525,1346.1695)"><path fill="#fff" d="m 704,512 q 0,53 -37.5,90.5 Q 629,640 576,640 523,640 485.5,602.5 448,565 448,512 q 0,-37 19,-67 19,-30 51,-47 L 449,169 q -5,-15 5,-28 10,-13 26,-13 h 192 q 16,0 26,13 10,13 5,28 l -69,229 q 32,17 51,47 19,30 19,67 z M 320,768 h 512 v 192 q 0,106 -75,181 -75,75 -181,75 -106,0 -181,-75 -75,-75 -75,-181 V 768 z m 832,-96 V 96 Q 1152,56 1124,28 1096,0 1056,0 H 96 Q 56,0 28,28 0,56 0,96 v 576 q 0,40 28,68 28,28 68,28 h 32 v 192 q 0,184 132,316 132,132 316,132 184,0 316,-132 132,-132 132,-316 V 768 h 32 q 40,0 68,-28 28,-28 28,-68 z" id="path2993" inkscape:connector-curvature="0"/></g></svg>
+			</div>
+		</div>
+		<div id='notifs'></div>
+		<div id="inputcontainer">
 			<input valign="bottom" id="input" type="text" autocomplete="off"/>
 		</div>
-		<div class='messages'></div>
-		<div class='spacebottom'></div>
+		<div id='account' style='display:none;'>
+			<div class='accStuff' id='accform'>
+				<form action="auth" method="POST">
+					<p id='fieldlabel'>Username</p>
+					<input class='inputauth' name="username" required>
+					<p id='fieldlabel'>Password</p>
+					<input class='inputauth' type="password" name="password" required>
+					<input class='inputsubmit' type="submit" value='Login'>
+				</form>
+				<p class='accText'>Need an account? <a class='accLink' id='registerButton'>Register</a></p>
+			</div>
+			<div class='accStuff' id='accinfo' style='display:none;'>
+				<img id='avatarUser'></img>
+				<div id='logout'>Logout</div>
+				<div id='otherThings'>
+					<p id='fieldlabel'>Username</p>
+					<div class='inputauth coolerstuck' name="username"></div>
+				</div>
+			</div>
+			
+			<div class='accStuff' id='accregister' style='display:none;'>
+				<form action="register" method="POST">
+					<p id='fieldlabel'>Username</p>
+					<input class='inputauth' name="username" required>
+					<p id='fieldlabel'>Password</p>
+					<input class='inputauth' type="password" name="password" required>
+					<input class='inputsubmit' type="submit" value='Register'>
+				</form>
+				<p class='accLink' id='loginButton' style='margin-left:0.8rem;'>Already have an account?</p>
+			</div>
+		</div>
+		<div id='messages'></div>
+		<object style="width:0px; height:0px; position:absolute; display:none;" type="text/html" data="/assets/getcookie.html"></object>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js" integrity="sha256-bQmrZe4yPnQrLTY+1gYylfNMBuGfnT/HKsCGX+9Xuqo=" crossorigin="anonymous"></script>
+		<script src="https://twemoji.maxcdn.com/v/12.1.5/twemoji.min.js" integrity="sha384-E4PZh8MWwKQ2W7ANni7xwx6TTuPWtd3F8mDRnaMvJssp5j+gxvP2fTsk1GnFg2gG" crossorigin="anonymous"></script>
+		<script src="js/main.js"></script>
 	</body>
 </html>
