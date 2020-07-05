@@ -1,5 +1,5 @@
 # discord-proxy
-## NOTICE: this has not been tested to work with windows without major modifications 
+## NOTICE: this has been archived and stuff, consider using chatutils..
 Node.js app that runs a Discord.js bot
 
 Maintained by Divide#2000 on discord
